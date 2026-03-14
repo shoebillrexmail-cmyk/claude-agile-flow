@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "agile-flow",
-      "source": ".",
+      "source": "..",
       "description": "Full agile workflow with Obsidian vault, Kanban boards, stories, specs, and git worktrees",
       "version": "1.0.0"
     }
