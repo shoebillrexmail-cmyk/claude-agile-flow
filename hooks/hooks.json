@@ -1,14 +1,16 @@
 {
-  "Stop": [
-    {
-      "hooks": [
-        {
-          "type": "prompt",
-          "prompt": "The session is ending. Check if there are any in-progress stories on the Sprint Board that should be noted. Read the Sprint Board at the vault path from CLAUDE.md and report any items left in 'In Progress' that the user should be aware of. Keep the message brief — just list the story names.",
-          "timeout": 15,
-          "statusMessage": "Checking sprint board status..."
-        }
-      ]
-    }
-  ]
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The session is ending. Check if there are any in-progress stories on the Sprint Board that should be noted. Read the Sprint Board at the vault path from CLAUDE.md and report any items left in 'In Progress' that the user should be aware of. Keep the message brief — just list the story names.",
+            "timeout": 15,
+            "statusMessage": "Checking sprint board status..."
+          }
+        ]
+      }
+    ]
+  }
 }
