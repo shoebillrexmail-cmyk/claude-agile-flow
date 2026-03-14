@@ -1,0 +1,14 @@
+{
+  "name": "agile-flow",
+  "version": "1.0.0",
+  "description": "Agile workflow with Obsidian vault integration, Kanban boards, story management, and git worktree isolation for parallel Claude Code sessions",
+  "author": {
+    "name": "koena"
+  },
+  "repository": "https://github.com/koena/claude-agile-flow",
+  "license": "MIT",
+  "keywords": ["agile", "obsidian", "kanban", "worktree", "project-management"],
+  "skills": ["./skills/"],
+  "agents": ["./agents/"],
+  "hooks": "./hooks/hooks.json"
+}

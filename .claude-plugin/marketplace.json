@@ -1,0 +1,17 @@
+{
+  "name": "agile-flow",
+  "owner": {
+    "name": "koena"
+  },
+  "metadata": {
+    "description": "Agile workflow plugin for Claude Code — Obsidian Kanban boards, story management, git worktree isolation"
+  },
+  "plugins": [
+    {
+      "name": "agile-flow",
+      "source": ".",
+      "description": "Full agile workflow with Obsidian vault, Kanban boards, stories, specs, and git worktrees",
+      "version": "1.0.0"
+    }
+  ]
+}
