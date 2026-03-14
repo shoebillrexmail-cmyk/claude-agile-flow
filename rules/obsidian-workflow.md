@@ -176,7 +176,36 @@ Stories should NOT contain full specifications. Instead:
    git branch -d feature/STORY-<name>
    ```
 
-### 5. When User Asks to Create New Work
+### 5. When User Reports a Bug or Issue
+
+**Trigger**: User says "there's a bug", "this is broken", "fix this", reports an error, pastes a stack trace, or describes unexpected behavior.
+
+**Immediate (critical/blocking bug):**
+1. Create a story: `Backlog/Stories/STORY-fix-<description>.md` with:
+   - Bug description, steps to reproduce, expected vs actual behavior
+   - Priority: ⏫ (bugs are high priority by default)
+   - Status: `Ready`
+2. Add directly to `Sprint/Board.md` under "Ready" (bypass backlog refinement)
+3. Pick it up immediately — move to "In Progress"
+4. Create worktree: `EnterWorktree(name: "STORY-fix-<description>")`
+5. Create branch: `git branch -m hotfix/STORY-fix-<description>`
+6. Fix the bug, run tests
+7. Follow the normal completion flow (PR → develop, update board)
+
+**Non-critical bug:**
+1. Create a story in `Backlog/Stories/STORY-fix-<description>.md`
+2. Add to `Backlog/Product-Backlog.md` under "Needs Refinement"
+3. Ask user: "Want me to fix this now or add it to the backlog?"
+4. If now: promote to Sprint Board and pick up
+5. If later: leave in backlog for next sprint planning
+
+**Hotfix (production/master):**
+1. Create story as above but with branch from `master`:
+   `git checkout -b hotfix/STORY-fix-<description> master`
+2. Fix, PR → `master` AND cherry-pick/merge to `develop`
+3. Update board to "Done" after both merges
+
+### 6. When User Asks to Create New Work
 
 **New idea / feature request:**
 1. Add to `Backlog/Product-Backlog.md` under "Icebox"
@@ -197,14 +226,30 @@ Stories should NOT contain full specifications. Instead:
 2. Update `Roadmap.md` with the epic
 3. Create child stories
 
-### 6. When User Asks About Status
+### 7. Handling Unplanned Work
+
+**Trigger**: Any request that isn't an existing story on the board — quick fixes, small tweaks, "can you just...", refactoring requests, dependency updates, etc.
+
+**Small (< 30 min, no design needed):**
+1. Create a minimal story: `Backlog/Stories/STORY-<name>.md` (can be brief — just title + what to do)
+2. Add directly to `Sprint/Board.md` → "In Progress"
+3. Work on current branch if already in a worktree, or create one
+4. Complete normally (PR, board update)
+
+**Medium/Large (needs design or is risky):**
+1. Create a full story with acceptance criteria
+2. Add to `Backlog/Product-Backlog.md` under "Needs Refinement"
+3. Ask user if it should go into the current sprint or wait
+4. If it needs a spec, create one in `Specs/`
+
+### 8. When User Asks About Status
 - Read `Sprint/Board.md` — summarize items per column
 - Read `Backlog/Product-Backlog.md` — summarize pipeline
 - Read `Roadmap.md` — report phase-level progress
 - Count completed vs remaining story points if available
 - Check branch status: `git branch -a` to list active feature branches
 
-### 7. Sprint Lifecycle
+### 9. Sprint Lifecycle
 **Starting a new sprint:**
 1. Archive the current board to `Archive/Sprint-YYYY-MM-DD.md`
 2. Create a fresh `Sprint/Board.md`
