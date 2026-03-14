@@ -44,10 +44,21 @@ Make sure your `~/.claude/settings.json` includes:
 }
 ```
 
-### Per-project setup
+### How it activates
 
-Add this to your repo's `CLAUDE.md` so Claude knows which vault project to use:
+The installer copies workflow rules to `~/.claude/rules/common/`. These load **automatically in every Claude Code session** — no setup per session needed.
 
+However, Claude needs to know *which vault project* belongs to *which code repo*. Without that link, Claude has the agile workflow knowledge but won't touch any vault files (safe default).
+
+**Two ways to link a repo to a vault project:**
+
+**Option A — Just ask Claude (easiest):**
+```
+You: Set up agile flow for a project called "my-app"
+Claude: → Creates vault structure + adds the config to your CLAUDE.md
+```
+
+**Option B — Manual:** Add this to your repo's `CLAUDE.md`:
 ```markdown
 ## Obsidian Project
 - Vault project: my-project
@@ -56,6 +67,11 @@ Add this to your repo's `CLAUDE.md` so Claude knows which vault project to use:
 - Specs: C:\Obsidian_Vaults\my-project\Specs\
 - Research: C:\Obsidian_Vaults\my-project\Research\
 ```
+
+| Repo has `## Obsidian Project` in CLAUDE.md? | What happens |
+|----------------------------------------------|-------------|
+| Yes | Claude automatically reads the board, manages stories, uses worktrees |
+| No | Claude knows the workflow but won't touch any vault — safe to use anywhere |
 
 ---
 
