@@ -127,6 +127,20 @@ Stories should NOT contain full specifications. Instead:
 
 ---
 
+## Worktree Rule (NON-NEGOTIABLE)
+
+**Every piece of code work MUST happen in a worktree.** Before writing ANY code (features, bug fixes, hotfixes, refactors, small tweaks), you MUST:
+1. Call `EnterWorktree` with the story name
+2. Rename the branch to `feature/STORY-<name>` or `hotfix/STORY-<name>`
+3. Only then start coding
+
+The only exceptions:
+- You are already in a worktree
+- The user explicitly says "don't use a worktree" or "work on this branch"
+- The work is documentation-only (no code changes)
+
+---
+
 ## Mandatory Agent Workflow
 
 ### 1. Before Starting Any Work
@@ -140,15 +154,12 @@ Stories should NOT contain full specifications. Instead:
 2. Update the linked story's **Status** to `In Progress`
 3. Read the story file and any linked specs before coding
 4. Respect WIP limit: max 2-3 items in "In Progress" at once
-5. **Git — use worktree for isolation**:
-   - If user says to work on a story (e.g. "work on STORY-auth-login"):
-     a. Use `EnterWorktree` with name `STORY-<name>` to create an isolated worktree
-     b. Inside the worktree, rename the branch to follow convention:
-        `git branch -m feature/STORY-<name>`
-     c. The session is now isolated — other sessions won't conflict
-   - If already in a worktree (e.g. launched with `claude --worktree`), skip creation
-   - If user explicitly doesn't want a worktree, fall back to branch checkout:
-     `git checkout develop && git pull && git checkout -b feature/STORY-<name>`
+5. **MANDATORY — Enter a worktree before writing any code**:
+   a. If already in a worktree, skip to step 6
+   b. Use `EnterWorktree` with name `STORY-<name>`
+   c. Rename the branch: `git branch -m feature/STORY-<name>`
+   d. The session is now isolated — other sessions won't conflict
+   e. Only skip worktree if the user explicitly says "don't use a worktree"
 
 ### 3. While Working
 - Check off completed tasks (`- [x]`) in the story file as you go
@@ -187,23 +198,25 @@ Stories should NOT contain full specifications. Instead:
    - Status: `Ready`
 2. Add directly to `Sprint/Board.md` under "Ready" (bypass backlog refinement)
 3. Pick it up immediately — move to "In Progress"
-4. Create worktree: `EnterWorktree(name: "STORY-fix-<description>")`
-5. Create branch: `git branch -m hotfix/STORY-fix-<description>`
+4. **MANDATORY — Enter worktree**: `EnterWorktree(name: "STORY-fix-<description>")`
+5. Rename branch: `git branch -m hotfix/STORY-fix-<description>`
 6. Fix the bug, run tests
-7. Follow the normal completion flow (PR → develop, update board)
+7. Follow the normal completion flow (PR → develop, update board, exit worktree)
 
 **Non-critical bug:**
 1. Create a story in `Backlog/Stories/STORY-fix-<description>.md`
 2. Add to `Backlog/Product-Backlog.md` under "Needs Refinement"
 3. Ask user: "Want me to fix this now or add it to the backlog?"
-4. If now: promote to Sprint Board and pick up
+4. If now: promote to Sprint Board → **enter worktree** → pick up (same as immediate)
 5. If later: leave in backlog for next sprint planning
 
 **Hotfix (production/master):**
-1. Create story as above but with branch from `master`:
-   `git checkout -b hotfix/STORY-fix-<description> master`
-2. Fix, PR → `master` AND cherry-pick/merge to `develop`
-3. Update board to "Done" after both merges
+1. Create story as above
+2. **MANDATORY — Enter worktree**: `EnterWorktree(name: "STORY-fix-<description>")`
+3. Switch to master base: `git fetch origin && git reset --hard origin/master`
+4. Rename branch: `git branch -m hotfix/STORY-fix-<description>`
+5. Fix, PR → `master` AND cherry-pick/merge to `develop`
+6. Update board to "Done" after both merges, exit worktree
 
 ### 6. When User Asks to Create New Work
 
@@ -233,14 +246,16 @@ Stories should NOT contain full specifications. Instead:
 **Small (< 30 min, no design needed):**
 1. Create a minimal story: `Backlog/Stories/STORY-<name>.md` (can be brief — just title + what to do)
 2. Add directly to `Sprint/Board.md` → "In Progress"
-3. Work on current branch if already in a worktree, or create one
-4. Complete normally (PR, board update)
+3. **MANDATORY — Enter worktree** if not already in one: `EnterWorktree(name: "STORY-<name>")`
+4. Rename branch: `git branch -m feature/STORY-<name>`
+5. Complete normally (PR, board update, exit worktree)
 
 **Medium/Large (needs design or is risky):**
 1. Create a full story with acceptance criteria
 2. Add to `Backlog/Product-Backlog.md` under "Needs Refinement"
 3. Ask user if it should go into the current sprint or wait
 4. If it needs a spec, create one in `Specs/`
+5. When picked up: follows the standard "Picking Up a Story" flow (mandatory worktree)
 
 ### 8. When User Asks About Status
 - Read `Sprint/Board.md` — summarize items per column
