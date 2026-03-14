@@ -7,8 +7,5 @@
   },
   "repository": "https://github.com/shoebillrexmail-cmyk/claude-agile-flow",
   "license": "MIT",
-  "keywords": ["agile", "obsidian", "kanban", "worktree", "project-management"],
-  "skills": ["./skills/"],
-  "agents": ["./agents/"],
-  "hooks": "./hooks/hooks.json"
+  "keywords": ["agile", "obsidian", "kanban", "worktree", "project-management"]
 }
