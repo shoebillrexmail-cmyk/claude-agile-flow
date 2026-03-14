@@ -206,12 +206,40 @@ Claude: → Creates Specs/Features/SPEC-notifications.md
 After installation, Claude Code loads the workflow rules from `~/.claude/rules/common/` on every session. These rules teach Claude:
 
 1. **Where your vault is** and how to read/write Obsidian Markdown files
-2. **The agile workflow** — backlog grooming, sprint planning, story lifecycle
+2. **The agile workflow** — backlog grooming, sprint planning, story lifecycle, bug reports, unplanned work
 3. **Board formats** — Kanban plugin-compatible Markdown that renders as drag-and-drop boards in Obsidian
-4. **Git branching** — one feature branch per story, worktrees for isolation, PRs to develop
-5. **When to update what** — move board items, check off tasks, write notes as work progresses
+4. **Git branching** — one feature branch per story, PRs to develop, hotfixes to master
+5. **Mandatory worktrees** — every code change happens in an isolated git worktree (non-negotiable)
+6. **When to update what** — move board items, check off tasks, write notes as work progresses
 
 You don't need slash commands. Claude understands what you want from natural language and follows the workflow rules.
+
+### Rules Files
+
+The installer copies these to `~/.claude/rules/common/`:
+
+| Rule | What it enforces |
+|------|-----------------|
+| `obsidian-workflow.md` | Full agile lifecycle — board management, story creation, bug handling, sprint planning. **Mandatory worktree rule**: all code work must happen in a worktree. |
+| `git-workflow.md` | Branch strategy (master/develop/feature), worktree setup, commit format with story refs, PR workflow. |
+
+### settings.json Configuration
+
+The installer also guides you to add these to `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "additionalDirectories": ["C:\\Obsidian_Vaults"]
+  },
+  "worktree": {
+    "symlinkDirectories": ["node_modules", ".venv", ".cache"]
+  }
+}
+```
+
+- `additionalDirectories` — allows Claude to read/write your Obsidian vault from any project
+- `symlinkDirectories` — avoids duplicating heavy folders when creating worktrees
 
 ## Vault Structure
 
