@@ -127,17 +127,30 @@ Stories should NOT contain full specifications. Instead:
 
 ---
 
-## Worktree Rule (NON-NEGOTIABLE)
+## Worktree Rule (NON-NEGOTIABLE — ZERO EXCEPTIONS)
 
-**Every piece of code work MUST happen in a worktree.** Before writing ANY code (features, bug fixes, hotfixes, refactors, small tweaks), you MUST:
+**Every piece of code work MUST happen in a worktree.** Before writing ANY code — even a single line — you MUST call `EnterWorktree` first.
+
+### The Rule
 1. Call `EnterWorktree` with the story name
 2. Rename the branch to `feature/STORY-<name>` or `hotfix/STORY-<name>`
 3. Only then start coding
 
-The only exceptions:
-- You are already in a worktree
-- The user explicitly says "don't use a worktree" or "work on this branch"
-- The work is documentation-only (no code changes)
+### This applies regardless of:
+- **Story state** — whether the story is new, in progress, in review, or done. State does not matter.
+- **Prior sessions** — if a previous session worked on this story without a worktree, YOU still use one.
+- **Branch existence** — if the feature branch doesn't exist yet, `EnterWorktree` creates one. That's what it does.
+- **Urgency** — urgent bugs, critical hotfixes, "just a quick fix" — ALL get a worktree. No urgency bypass.
+- **Where the changes are** — if changes are on develop, on master, or uncommitted. Enter a worktree first, then work.
+- **How small the change is** — one line or one thousand lines, worktree first.
+
+### The ONLY exceptions (must be explicitly true):
+- You are already inside a worktree (check with: is the cwd inside `.claude/worktrees/`?)
+- The user explicitly says "don't use a worktree" or "work on this branch directly"
+- The work is documentation-only (zero code file changes)
+
+### Why this matters
+Without worktrees, parallel sessions conflict, develop gets polluted with half-finished work, and there's no clean branch-per-story history. The worktree IS the isolation boundary.
 
 ---
 
