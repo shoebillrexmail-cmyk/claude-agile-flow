@@ -92,6 +92,16 @@ Heavy directories are symlinked (not copied) to save disk space. Configured in `
 }
 ```
 
+### Gitignored Files (IMPORTANT)
+Git worktrees only contain tracked files. Gitignored files like `.env` are NOT included. After entering a worktree, you MUST symlink them from the main repo:
+```bash
+MAIN_REPO=$(git -C "$(git rev-parse --git-common-dir)" rev-parse --show-toplevel 2>/dev/null || echo "")
+for f in .env .env.local .env.development .env.test; do
+  [ -f "$MAIN_REPO/$f" ] && [ ! -f "$f" ] && ln -s "$MAIN_REPO/$f" "$f"
+done
+```
+Without this, builds and tests fail due to missing environment variables and secrets.
+
 ### Session ↔ Story Mapping
 When starting a Claude Code session in a worktree:
 1. The session reads the repo's CLAUDE.md to find the Obsidian project

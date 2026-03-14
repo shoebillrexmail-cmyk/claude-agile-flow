@@ -149,6 +149,21 @@ Stories should NOT contain full specifications. Instead:
 - The user explicitly says "don't use a worktree" or "work on this branch directly"
 - The work is documentation-only (zero code file changes)
 
+### After entering a worktree — symlink gitignored files
+Git worktrees only include tracked files. Gitignored files like `.env` are NOT copied. After `EnterWorktree`, immediately symlink these from the main repo:
+
+```bash
+# Get the main repo root (parent of .claude/worktrees/)
+MAIN_REPO=$(git -C "$(git rev-parse --git-common-dir)" rev-parse --show-toplevel 2>/dev/null || echo "")
+
+# Symlink .env and other gitignored config files if they exist in the main repo
+for f in .env .env.local .env.development .env.test; do
+  [ -f "$MAIN_REPO/$f" ] && [ ! -f "$f" ] && ln -s "$MAIN_REPO/$f" "$f"
+done
+```
+
+This is MANDATORY after every `EnterWorktree`. Without it, builds and tests fail due to missing environment variables.
+
 ### Why this matters
 Without worktrees, parallel sessions conflict, develop gets polluted with half-finished work, and there's no clean branch-per-story history. The worktree IS the isolation boundary.
 
