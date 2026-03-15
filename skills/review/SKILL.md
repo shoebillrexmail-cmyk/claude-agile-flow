@@ -13,7 +13,7 @@ Run automated code review on the current story's changes. Detects what changed a
 
 1. Find the vault path from `CLAUDE.md` under `## Obsidian Project`
 2. Determine the current story from the branch name (`feature/STORY-<name>` or `hotfix/STORY-<name>`)
-3. Read the story file to get acceptance criteria and PR link
+3. Read the story file to get acceptance criteria, specialist context, and PR link
 4. Verify the story is in "In Review" on `Sprint/Board.md` — if not, warn the user but continue (useful for pre-review checks)
 
 Initialize cycle state:
@@ -27,50 +27,46 @@ findings_ledger = []   # tracks all findings across cycles
 
 Run `git diff develop...HEAD --name-only` to get the list of changed files.
 
-Classify changes into categories:
-- **contract**: Files importing from `@btc-vision/btc-runtime`, files in directories with `asconfig.json`, `.ts` files in contract-like directories
-- **frontend**: `.tsx` files, `.ts` files importing from `opnet` or using React/wallet patterns
-- **backend**: `.ts` files importing from `opnet`, `@btc-vision/transaction`, or using `hyper-express`/Express
+Classify changes into general categories:
 - **go**: `.go` files
 - **python**: `.py` files
-- **general**: All other code files (`.ts`, `.js`, `.tsx`, `.jsx`, `.css`, etc.)
+- **frontend**: `.tsx`, `.jsx` files
+- **backend**: `.ts`, `.js` files in server/API directories
+- **general**: All other code files
 
-## Step 3: Detect Project Type
+## Step 3: Discover Review Agents
 
-Check if this is an OPNet project by looking for ANY of:
-- `package.json` contains `@btc-vision/` dependencies
-- Source files import from `@btc-vision/btc-runtime`, `opnet`, or `@btc-vision/transaction`
-- `asconfig.json` exists (AssemblyScript compiler config)
+Build the review agent list from two sources:
 
-## Step 4: Select Review Agents
+### Built-in agents (always run for any code changes):
 
-Build the agent list based on what changed. Launch ALL applicable agents **in parallel**.
+| Agent | Purpose |
+|-------|---------|
+| `code-reviewer` | General code quality, patterns, maintainability |
+| `security-reviewer` | Security vulnerabilities, secrets, OWASP top 10 |
 
-### Always run (for any code changes):
-| Agent | Type | Purpose |
-|-------|------|---------|
-| `code-reviewer` | Agent | General code quality, patterns, maintainability |
-| `security-reviewer` | Agent | Security vulnerabilities, secrets, OWASP top 10 |
+### Language-specific agents (if those file types changed):
 
-### Language-specific (if those file types changed):
 | Condition | Agent | Purpose |
 |-----------|-------|---------|
 | Go files changed | `go-reviewer` | Idiomatic Go, concurrency, error handling |
 | Python files changed | `python-reviewer` | PEP 8, type hints, Pythonic patterns |
 
-### OPNet-specific (if OPNet project detected):
-| Condition | Agent | Purpose |
-|-----------|-------|---------|
-| Contract files changed | `opnet-auditor` | 27-pattern security checklist |
-| Contract files changed | `contract-optimizer` | Gas efficiency, storage layout |
-| Frontend files changed | `frontend-analyzer` | 40+ OPNet frontend anti-pattern checks |
-| Backend files changed | `backend-analyzer` | Reliability, caching, RPC patterns |
-| Multiple layers changed | `cross-layer-validator` | ABI/address/network consistency |
-| Any OPNet files changed | `dependency-auditor` | Package versions, conflicts, missing overrides |
+### Domain-specific agents (from specialist configs):
 
-### OPNet MCP enrichment (if `opnet-bob` MCP is available):
-- After local agents complete, run `opnet_audit` MCP tool for a second opinion on contract code
-- Cross-reference MCP findings with local agent findings — flag agreements as high-confidence
+Read the story's `## Specialist Context` to find the domain. Then load the domain plugin's specialist config and read its **Review** section for the agent table.
+
+For each entry in the Review agents table, check if the condition is met (based on changed files), and add the agent to the dispatch list.
+
+If no specialist config is available, check loaded rules for domain-specific routing logic.
+
+### Domain MCP enrichment (from specialist config):
+
+If the domain's specialist config lists MCP tools for review, run them after local agents complete for cross-referencing.
+
+## Step 4: Launch Reviews
+
+Launch ALL selected agents **in parallel** using the Agent tool.
 
 ---
 
@@ -144,7 +140,7 @@ If `cycle < max_cycles`:
    - Using only the localized context (not the full codebase), generate the fix
    - For complex findings, generate up to 3 candidate approaches
    - Each fix should be minimal — change only what's needed to resolve the finding
-   - Follow specialist rules (OPNet patterns, Go idioms, Python conventions, etc.)
+   - Follow domain rules from the story's specialist context
 
    **Phase R3 — VALIDATE** (verify fix):
    - Apply the fix
@@ -192,7 +188,7 @@ Before moving to Done, enforce these non-negotiable quality gates:
 - If tests fail: DO NOT move to Done. Report which tests failed and ask user to fix.
 
 ### Gate 2: No CRITICAL Security Findings
-- If any `security-reviewer` or `opnet-auditor` finding with severity CRITICAL is still OPEN: BLOCK.
+- If any finding with severity CRITICAL is still OPEN: BLOCK.
 - Report: "Cannot complete — {N} CRITICAL security findings remain. These must be resolved."
 
 ### Gate 3: Coverage Check (if coverage tooling exists)
@@ -200,9 +196,9 @@ Before moving to Done, enforce these non-negotiable quality gates:
 - If coverage < 80%: WARN (do not block, but report the gap)
 - Report: "Coverage is {N}% (target: 80%). Consider adding tests."
 
-### Gate 4: OPNet Contract Tests (if OPNet contract project)
-- If contract files were changed, verify contract tests exist and pass
-- If no contract tests exist for changed methods: WARN strongly
+### Gate 4: Domain-specific Tests (if domain plugin defines test types)
+- If domain-specific test types are defined in the story's testing strategy, verify they exist and pass
+- If missing: WARN strongly
 
 If any BLOCKING gate fails: leave in "In Review", report what needs fixing.
 If only WARNINGs: report them, proceed to Done (user decides).
@@ -233,5 +229,5 @@ If only WARNINGs: report them, proceed to Done (user decides).
 - Re-running on an already-reviewed story is safe — it just re-checks the current state
 - Regressions (fixed then reappeared) are automatically elevated to CRITICAL severity
 - The `--max-cycles` flag can be overridden per invocation for particularly complex stories
-- The skill respects the agent routing rules in `opnet-agent-routing.md` for OPNet projects
+- Domain-specific review agents are discovered from the specialist config — not hardcoded
 - Each cycle only re-runs agents that had findings — clean agents are not re-dispatched

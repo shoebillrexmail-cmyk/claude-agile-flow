@@ -190,10 +190,10 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 2. Update the linked story's **Status** to `In Progress`
 3. Read the story file and any linked specs before coding
 4. **Load specialist context** from the story's `## Specialist Context` section:
-   - Identify project type and recommended specialist agents
-   - Load domain-specific knowledge (OPNet slices, Go patterns, Python standards, etc.)
+   - Identify project type, domain, and recommended specialist agents
+   - Load domain rules and development agent triggers from the domain's specialist config
    - Note known pitfalls to avoid during implementation
-   - If specialist context is missing (legacy story), auto-detect project type
+   - If specialist context is missing (legacy story), auto-detect project type and discover domain plugins
 5. **Consult prior learnings**: Read `Learning/Index.md` and search for relevant entries:
    - Check `Learning/Patterns/` for anti-patterns related to this story's domain
    - Check `Learning/Integrations/` for guides on technologies this story will use
@@ -214,13 +214,8 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 - Follow the story's `## Testing Strategy` — write each required test type
 - Check off completed tasks (`- [x]`) in the story file as you go
 - **Invoke specialist agents at trigger points**:
-  - OPNet contract code → follow `opnet-contract-dev` rules
-  - OPNet frontend code → follow `opnet-frontend-dev` rules (signer: null, simulate before send)
-  - API endpoints → invoke `security-reviewer` for auth/input validation
-  - Database queries → invoke `database-reviewer` for SQL safety
-  - Go code → invoke `go-reviewer` for idiomatic patterns
-  - Python code → invoke `python-reviewer` for PEP 8 compliance
-  - Architectural decisions → invoke `architect` agent
+  - **Built-in triggers**: API endpoints → `security-reviewer`, DB queries → `database-reviewer`, Go → `go-reviewer`, Python → `python-reviewer`, architecture → `architect`
+  - **Domain-specific triggers**: Check the story's specialist context for the domain's development agent trigger table. If a trigger condition is met, invoke the specified agent.
 - If you discover new work, add it to `Backlog/Product-Backlog.md` under "Icebox"
 - If you need to investigate something, create a `Research/SPIKE-<topic>.md`
 - Write architecture decisions to `Notes/Decisions/`
@@ -247,15 +242,11 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 5. Update the story's **PR** field with the PR link
 6. **Automated Review Cycle** (triggered automatically by `/agile-flow:done`, max 3 cycles):
    a. Detect changed files: `git diff develop...HEAD --name-only`
-   b. Detect project type (OPNet, Go, Python, general)
+   b. Detect project type and discover domain specialists
    c. Launch relevant review agents **in parallel**:
       - **Always**: `code-reviewer`, `security-reviewer`
-      - **If Go**: `go-reviewer`
-      - **If Python**: `python-reviewer`
-      - **If OPNet contract**: `opnet-auditor`, `contract-optimizer`
-      - **If OPNet frontend**: `frontend-analyzer`
-      - **If OPNet backend**: `backend-analyzer`
-      - **If OPNet multi-layer**: `cross-layer-validator`, `dependency-auditor`
+      - **Language-specific**: `go-reviewer` (Go), `python-reviewer` (Python)
+      - **Domain-specific**: agents from the domain plugin's specialist config Review section (discovered dynamically)
    d. Collect findings, assign IDs, track in findings ledger (OPEN/RESOLVED/REGRESSION)
    e. **If CRITICAL/HIGH findings (FAIL verdict)**:
       - Apply **Structured Repair (R1/R2/R3)**: LOCALIZE (read-only) → PATCH (generate fix) → VALIDATE (run tests)
@@ -269,7 +260,7 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
       - Tests must pass (BLOCKS if failing)
       - No CRITICAL security findings may remain (BLOCKS)
       - Coverage check — warn if < 80% (does not block)
-      - OPNet contract tests must exist for changed methods (WARNS)
+      - Domain-specific tests must exist if domain plugin defines test types (WARNS)
    h. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
 7. **Learning extraction** — run `/agile-flow:learn` to generate educational content:
    - Analyze what was built, what was caught in review, what specialist feedback was key
@@ -319,8 +310,8 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 ### 6. When User Asks to Create New Work
 
 **New idea / feature request:**
-1. **Detect project type**: Check `package.json`, `go.mod`, `asconfig.json`, etc.
-2. **Consult specialist**: Launch a specialist agent for the detected project type to get approach feedback, risks, and testing recommendations
+1. **Detect project type and discover domain plugins**: Check language/framework indicators + search for domain specialist configs from installed plugins
+2. **Consult specialists**: Launch general + domain-specific specialist agents for approach feedback, risks, and testing recommendations
 3. Create a story file in `Backlog/Stories/STORY-<name>.md` with:
    - User story, acceptance criteria
    - `## Specialist Context` — project type, consulted specialists, recommendations, pitfalls

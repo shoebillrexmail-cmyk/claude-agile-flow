@@ -109,7 +109,7 @@ Step-by-step guide to the integration:
 
 **Type**: Anti-pattern | Best Practice | Gotcha
 **Severity**: Critical | High | Medium | Low
-**Domain**: [OPNet Contract | OPNet Frontend | Go | Python | Security | General]
+**Domain**: [project domain — e.g. Go | Python | Frontend | Backend | Security | General, or domain plugin name]
 **Occurrences**: 1
 **First seen**: [[STORY-<name>]] (YYYY-MM-DD)
 
@@ -150,7 +150,7 @@ Explanation of the consequences — what breaks, what's the impact?
 
 **Story**: [[STORY-<name>]]
 **Date**: YYYY-MM-DD
-**Domain**: [e.g. OPNet Contract, Frontend Architecture, API Design, DevOps]
+**Domain**: [e.g. Frontend Architecture, API Design, DevOps, or domain plugin name]
 **Difficulty**: Beginner | Intermediate | Advanced
 
 ## Context

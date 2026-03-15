@@ -174,7 +174,7 @@ Claude: → Checks acceptance criteria against the code
         → Moves story to "In Review" on Sprint Board
         → Runs automated review cycle:
           - Launches review agents in parallel (code-reviewer, security-reviewer,
-            plus specialists: opnet-auditor, go-reviewer, python-reviewer, etc.)
+            plus language and domain-specific agents from installed plugins)
           - If findings: structured repair (R1 Localize → R2 Patch → R3 Validate)
           - Re-reviews incrementally (only re-runs agents that had findings)
           - Up to 3 cycles, then escalates to user
@@ -273,14 +273,10 @@ When a story moves to "In Review", the automated review system:
 1. **Detects** what changed and what project type this is
 2. **Selects** review agents based on context:
 
-| Always | Language-Specific | OPNet-Specific |
-|--------|------------------|----------------|
-| `code-reviewer` | `go-reviewer` | `opnet-auditor` |
-| `security-reviewer` | `python-reviewer` | `contract-optimizer` |
-| | | `frontend-analyzer` |
-| | | `backend-analyzer` |
-| | | `cross-layer-validator` |
-| | | `dependency-auditor` |
+| Always | Language-Specific | Domain-Specific (from plugins) |
+|--------|------------------|-------------------------------|
+| `code-reviewer` | `go-reviewer` | Discovered from installed domain |
+| `security-reviewer` | `python-reviewer` | plugins' `specialists.md` configs |
 
 3. **Launches** all applicable agents in parallel
 4. **Collects** findings into a ledger with IDs (`F-001`, `F-002`...) tracking status across cycles

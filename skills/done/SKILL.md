@@ -46,7 +46,7 @@ Complete the current story and create a pull request.
 7. Update the story's **PR** field with the PR URL
 8. **Trigger automated review cycle**: Run `/agile-flow:review` to launch review agents on the changes. This runs a review/fix loop (default max 3 cycles):
    - Detects project type and changed file categories
-   - Launches appropriate review agents in parallel (code-reviewer, security-reviewer, plus specialized: opnet-auditor, go-reviewer, python-reviewer, etc.)
+   - Launches appropriate review agents in parallel (code-reviewer, security-reviewer, plus language and domain-specific agents from installed plugins)
    - If CRITICAL/HIGH findings: fixes them, commits, re-reviews (incremental — only re-runs agents that had findings)
    - If regressions detected (fixed issue reappeared): elevated to CRITICAL
    - Cycle repeats until PASS or max cycles reached

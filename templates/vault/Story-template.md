@@ -18,17 +18,20 @@ so that **[benefit]**.
 
 ## Specialist Context
 
-**Project type**: [e.g. OPNet contract, OPNet frontend, Go backend, Python API, React frontend]
+**Project type**: [e.g. Go backend, Python API, React frontend, etc.]
+**Domain**: [matched domain plugin, if any — e.g. none, or domain name from specialists.md]
 **Specialists consulted**: [list of specialist agents consulted during story creation]
 **Key recommendations**:
 - [recommendation from specialist consultation]
 
-**Specialist agents for development**: [agents available during pickup/implementation]
+**Specialist agents for development**: [agents available during pickup — from domain config + built-in]
 - [agent 1] — [purpose]
 - [agent 2] — [purpose]
 
+**Domain rules**: [constraints from domain specialist config, if any]
+
 **Known pitfalls**:
-- [pitfall from specialist or incident query]
+- [pitfall from specialist consultation]
 
 ## Acceptance Criteria
 - [ ] Given [context], when [action], then [outcome]
@@ -47,9 +50,8 @@ so that **[benefit]**.
 ### Integration Tests
 - [ ] Test [API/module interaction] — [scenario]
 
-### Contract Tests (if OPNet)
-- [ ] Test [contract method] — [valid inputs]
-- [ ] Test [contract method] — [revert on invalid inputs]
+### Domain-Specific Tests (if domain plugin defines additional test types)
+- [ ] Test [domain-specific scenario]
 
 ### E2E Tests (if user-facing flow)
 - [ ] Test [user flow] — [end-to-end scenario]

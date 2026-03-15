@@ -9,84 +9,74 @@ Create a new agile user story. The argument "$ARGUMENTS" describes what the stor
 1. Generate a kebab-case story name from the description (e.g. "auth-login", "payment-checkout")
 2. Find the project's vault path from the repo's CLAUDE.md under `## Obsidian Project`
 
-## Step 2: Detect Project Type and Specialists
+## Step 2: Detect Project Type and Discover Specialists
 
-Before writing anything, detect what kind of project this is to determine which specialists to consult.
+Before writing anything, detect what kind of project this is.
 
-**Detection checks (run in parallel):**
-- Check `package.json` for `@btc-vision/` deps → OPNet project
-- Check for `asconfig.json` → OPNet contract
+**General detection (built-in):**
 - Check for `.go` files or `go.mod` → Go project
 - Check for `.py` files or `pyproject.toml`/`requirements.txt` → Python project
 - Check for `.tsx`/`.jsx` files or React deps → Frontend project
-- Check for Express/Fastify/hyper-express → Backend project
+- Check for Express/Fastify/NestJS → Backend project
 - Check for `prisma/`, `drizzle/`, or migration dirs → Database project
 - Check for existing test framework (`jest.config`, `vitest.config`, `pytest.ini`, `*_test.go`) → Note test tooling
 
-Build a specialist roster based on detection:
+**Domain specialist discovery:**
+Search for specialist configurations provided by installed domain plugins. Check:
+1. Installed plugin directories for `specialists.md` files
+2. Loaded rules in `~/.claude/rules/` that contain specialist routing (e.g., agent routing rules)
+3. CLAUDE.md for a `## Specialists` section
 
-| Detected | Specialists to consult | During development |
-|----------|----------------------|-------------------|
-| OPNet contract | `opnet-contract-dev` knowledge, `opnet-auditor` for security considerations | `opnet-contract-dev`, `contract-optimizer`, `opnet-auditor` |
-| OPNet frontend | `opnet-frontend-dev` knowledge, OPNet wallet/signer patterns | `frontend-analyzer`, `opnet-frontend-dev` |
-| OPNet backend | `opnet-backend-dev` knowledge, RPC/indexer patterns | `backend-analyzer`, `opnet-backend-dev` |
-| Go | `go-reviewer` for idiomatic patterns | `go-reviewer`, `tdd-guide` |
-| Python | `python-reviewer` for Pythonic patterns | `python-reviewer`, `tdd-guide` |
-| Frontend (general) | Frontend architecture patterns | `code-reviewer`, `tdd-guide` |
-| Backend (general) | API design patterns | `code-reviewer`, `security-reviewer`, `tdd-guide` |
-| Database | Schema design, migration safety | `database-reviewer`, `security-reviewer` |
-| Any project | `security-reviewer` for security considerations | `security-reviewer`, `code-reviewer` |
+For each discovered specialist config, check its **Detection** rules against the current project. If detection matches, load that domain's agents, rules, and test types.
+
+**Build a specialist roster** from all matches. Always include these general-purpose agents:
+
+| Always Available | Purpose |
+|-----------------|---------|
+| `code-reviewer` | General code quality, patterns, maintainability |
+| `security-reviewer` | Security vulnerabilities, secrets, OWASP top 10 |
+| `tdd-guide` | Test-driven development enforcement |
+| `architect` | System design and architectural decisions |
+
+Plus language-specific reviewers (built into Claude Code):
+| Detected | Agent |
+|----------|-------|
+| Go | `go-reviewer` |
+| Python | `python-reviewer` |
+
+Plus any domain-specific agents from discovered specialist configs.
 
 ## Step 3: Specialist Consultation on Approach
 
-Launch a specialist agent (based on detected project type) to provide feedback on the described feature. Use the Agent tool with the appropriate specialist:
+Launch specialist agents (based on detected project type and discovered domain configs) to provide feedback on the described feature.
 
-**Prompt the specialist with:**
+**Prompt each specialist with:**
 - The feature description from the user
 - The detected project type and tech stack
 - Ask: "What are the key technical considerations, risks, and recommended approach for implementing this? What testing strategy would you recommend? Are there common pitfalls to avoid?"
 
-**For OPNet projects specifically:**
-- Also query `opnet_dev` MCP tool (if available) for OPNet-specific guidance
-- Check `opnet_incident_query` for known pitfalls related to this type of feature
-- Include OPNet rules: no Buffer, SafeMath required, no constructor logic, ECDSA deprecated, etc.
+**If domain plugins provide MCP tools** (from the specialist config's MCP Tools section), use them for additional guidance and known pitfall queries.
 
-Capture the specialist's feedback — it feeds into the spec and testing strategy.
+Capture all specialist feedback — it feeds into the spec and testing strategy.
 
 ## Step 4: Generate Testing Strategy
 
 Based on the project type, feature description, and specialist feedback, determine which test types are needed:
 
-### Test Type Selection Matrix
+### Built-in Test Types (always considered)
 
 | Test Type | When Required | Framework Detection |
 |-----------|--------------|-------------------|
 | **Unit Tests** | ALWAYS — every story must have unit tests | jest/vitest/pytest/go test/mocha |
 | **Integration Tests** | When feature touches APIs, databases, external services, or cross-module boundaries | Same frameworks + test DBs, supertest, httptest |
-| **Contract Tests** | When OPNet contract code is involved — tests against the contract ABI | OPNet test framework, AS-pect |
-| **E2E Tests** | When feature has user-facing flows, critical paths, or multi-step interactions | Playwright, Cypress, or on-chain E2E for OPNet |
+| **E2E Tests** | When feature has user-facing flows, critical paths, or multi-step interactions | Playwright, Cypress |
 | **Security Tests** | When feature handles auth, user input, payments, secrets, or permissions | Custom assertions, OWASP checks |
 | **Performance Tests** | When feature has explicit performance requirements or handles high throughput | k6, artillery, benchmark tests |
 
-Generate concrete test requirements for each applicable type:
-```
-Unit Tests:
-- [ ] Test [specific function/component] with [happy path scenario]
-- [ ] Test [specific function/component] with [edge case]
-- [ ] Test [specific function/component] with [error case]
+### Domain-specific Test Types
+If domain specialist configs define additional test types (in their Test Types section), include them when their conditions are met.
 
-Integration Tests:
-- [ ] Test [API endpoint / module interaction] end-to-end
-- [ ] Test [database operation] with real connection
-
-Contract Tests (OPNet):
-- [ ] Test [contract method] with valid inputs
-- [ ] Test [contract method] reverts on invalid inputs
-- [ ] Test [contract method] state changes are correct
-
-E2E Tests:
-- [ ] Test [user flow] from start to finish
-```
+Generate concrete test requirements for each applicable type.
 
 ## Step 5: Create the Story File
 
@@ -113,13 +103,16 @@ so that **[benefit]**.
 
 ## Specialist Context
 
-**Project type**: [detected type]
-**Specialists consulted**: [list of specialists]
+**Project type**: [detected type(s)]
+**Domain(s)**: [matched domain plugin names, if any]
+**Specialists consulted**: [list of specialist agents]
 **Key recommendations**:
 - [recommendation 1 from specialist]
 - [recommendation 2 from specialist]
 
-**Specialist agents for development**: [list agents available during pickup]
+**Specialist agents for development**: [agents available during pickup — from domain config's Development section]
+
+**Domain rules**: [key rules from domain config — constraints to follow]
 
 **Known pitfalls**:
 - [pitfall 1]
@@ -136,19 +129,18 @@ so that **[benefit]**.
 **TDD required**: Yes — write tests FIRST, then implement
 
 ### Required Test Types
-(include only applicable types from Step 4)
+(include only applicable types — built-in + domain-specific)
 
 #### Unit Tests
-- [ ] [concrete test requirement]
 - [ ] [concrete test requirement]
 
 #### Integration Tests
 - [ ] [concrete test requirement]
 
-#### Contract Tests (if OPNet)
+#### [Domain-specific test type name] (if applicable)
 - [ ] [concrete test requirement]
 
-#### E2E Tests
+#### E2E Tests (if applicable)
 - [ ] [concrete test requirement]
 
 ## Tasks
@@ -172,7 +164,7 @@ so that **[benefit]**.
 
 Use the feature spec template but ensure these sections are filled:
 - **Testing Strategy** — populated from Step 4 with concrete requirements per test type
-- **Specialist Considerations** — captured from Step 3 consultation
+- **Specialist Considerations** — captured from Step 3 consultation (domain rules, recommendations)
 - **Edge Cases** — informed by specialist feedback and known pitfalls
 - **Security Considerations** — from security-reviewer perspective
 
@@ -187,7 +179,7 @@ Before finalizing, validate the story against these checks:
 - [ ] At least 3 acceptance criteria with Given/When/Then format
 - [ ] Testing strategy has at least unit tests defined
 - [ ] Each acceptance criterion has a corresponding test requirement
-- [ ] Specialist context is documented
+- [ ] Specialist context is documented (project type, agents, pitfalls)
 - [ ] Tasks include TDD workflow steps (write tests → implement → verify)
 
 **Testability:**
@@ -196,7 +188,7 @@ Before finalizing, validate the story against these checks:
 - [ ] Test types are appropriate for the feature scope
 
 **Specialist review:**
-- [ ] At least one specialist was consulted
+- [ ] At least one specialist was consulted (general or domain-specific)
 - [ ] Known pitfalls are documented
 - [ ] Specialist recommendations are reflected in the approach
 
@@ -207,7 +199,7 @@ If any check fails, fix it before proceeding.
 1. Add the story to `Backlog/Product-Backlog.md` under "Needs Refinement"
 2. Report to user:
    - Story summary
-   - Specialist findings
+   - Specialist findings (general + domain-specific)
    - Testing strategy overview
    - Story point estimate with rationale
 3. Ask: "Want to refine further, pull into the sprint, or create more stories?"

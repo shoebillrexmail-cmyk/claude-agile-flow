@@ -48,9 +48,7 @@ Wireframes, mockups, or descriptions of the interface.
 - [recommendation 2]
 
 ### Domain-Specific Rules
-(For OPNet: no Buffer, SafeMath required, no constructor logic, ECDSA deprecated, etc.)
-(For Go: idiomatic patterns, error handling conventions)
-(For Python: PEP 8, type hints, async patterns)
+(From domain specialist config, if a domain plugin is installed — constraints to follow)
 
 ### Known Pitfalls
 - [pitfall 1 — from specialist or incident history]
@@ -82,13 +80,10 @@ Wireframes, mockups, or descriptions of the interface.
 | [API endpoint / module boundary] | Valid request/response | Must have |
 | [DB operation] | CRUD with real connection | Must have |
 
-### Contract Tests (OPNet projects)
-| Contract Method | Test Scenario | Priority |
-|----------------|---------------|----------|
-| [method] | Valid inputs, verify state change | Must have |
-| [method] | Invalid inputs, verify revert | Must have |
-| [method] | Boundary values (0, MAX_U256) | Must have |
-| [method] | Access control (unauthorized caller) | Must have |
+### Domain-Specific Tests (if domain plugin defines additional test types)
+| Subject | Test Scenario | Priority |
+|---------|---------------|----------|
+| [domain-specific subject] | [scenario] | Must have |
 
 ### E2E Tests
 | User Flow | Steps | Priority |

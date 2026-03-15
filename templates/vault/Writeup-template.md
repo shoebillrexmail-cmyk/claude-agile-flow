@@ -2,7 +2,7 @@
 
 **Story**: [[STORY-name]]
 **Date**: {{date}}
-**Domain**: [e.g. OPNet Contract, Frontend Architecture, API Design, DevOps]
+**Domain**: [e.g. Frontend Architecture, API Design, DevOps, or domain plugin name]
 **Difficulty**: Beginner | Intermediate | Advanced
 
 ## Context

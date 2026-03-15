@@ -2,7 +2,7 @@
 
 **Type**: Anti-pattern | Best Practice | Gotcha
 **Severity**: Critical | High | Medium | Low
-**Domain**: [OPNet Contract | OPNet Frontend | Go | Python | Security | General]
+**Domain**: [project domain — e.g. Go | Python | Frontend | Backend | Security | General, or domain plugin name]
 **Occurrences**: 1
 **First seen**: [[STORY-name]] ({{date}})
 

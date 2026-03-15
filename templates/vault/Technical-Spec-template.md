@@ -29,9 +29,7 @@ Describe how data moves through the system.
 - [recommendation 2]
 
 ### Domain-Specific Constraints
-(OPNet: storage pointer ordering, SafeMath, no Buffer, ML-DSA signatures)
-(Go: interface design, goroutine patterns, channel usage)
-(Python: async/await patterns, dependency injection)
+(From domain specialist config, if a domain plugin is installed)
 - [constraint 1]
 - [constraint 2]
 
@@ -72,10 +70,10 @@ Describe how data moves through the system.
 |----------|-------------|---------------|
 | [API/DB/service] | [interaction] | [test DB, mock server, etc.] |
 
-### Contract Tests (OPNet)
-| Method | Scenarios | Boundary Values |
-|--------|----------|----------------|
-| [method] | [happy path, error, access control] | [0, MAX, edge values] |
+### Domain-Specific Tests (if domain plugin defines additional test types)
+| Subject | Scenarios | Notes |
+|---------|----------|-------|
+| [domain-specific subject] | [scenarios] | [notes] |
 
 ### E2E Tests
 | Flow | Steps | Expected Result |
