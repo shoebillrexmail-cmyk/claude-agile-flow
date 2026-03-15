@@ -34,16 +34,17 @@ feature/STORY-<name> (one branch per story)
 Branches map to deployment environments. CI/CD pipelines should deploy automatically based on which branch receives a push:
 
 ```
-feature/STORY-*  ──PR──▶  develop  ──PR──▶  master
-     │                       │                  │
-  Preview only         Staging / Testnet     Production / Mainnet
-  (frontend)          (full deploy pipeline)  (full deploy pipeline)
+feature/STORY-*  ──PR──▶  develop  ──PR──▶  release/vX.Y.Z  ──PR──▶  master
+     │                       │                    │                       │
+  Preview only         Staging / Testnet     Release Candidate       Production / Mainnet
+  (frontend)          (full deploy pipeline)  (stabilization)        (full deploy pipeline)
 ```
 
 | Branch | Environment | Deploys |
 |--------|-------------|---------|
 | `feature/*`, `hotfix/*` | Preview | Frontend only (temporary preview URL) |
 | `develop` | Staging / Testnet | Contracts (if changed) → Indexer → Frontend |
+| `release/*` | Release Candidate | Same as staging — final verification before production |
 | `master` | Production / Mainnet | Contracts (if changed) → Indexer → Frontend |
 
 ### Deployment Config Pattern
@@ -200,10 +201,73 @@ Note: Attribution disabled globally via ~/.claude/settings.json.
 5. After merge, delete the feature branch and clean up the worktree
 
 ### Develop → Master (Release)
-1. Create a release branch if stabilization needed: `release/vX.Y.Z`
-2. Or merge develop directly to master for simple releases
-3. Tag the release: `git tag vX.Y.Z`
-4. Merge back to develop if release branch had hotfixes
+
+Releases follow a structured flow to ensure production stability.
+
+#### Versioning (Semantic Versioning)
+- **MAJOR** (`vX.0.0`) — breaking changes, incompatible API modifications
+- **MINOR** (`v0.X.0`) — new features, backward-compatible additions
+- **PATCH** (`v0.0.X`) — bug fixes, patches, no new features
+
+#### Release Flow
+
+**Step 1 — Cut the release branch:**
+```bash
+git fetch origin
+git checkout develop
+git pull origin develop
+git checkout -b release/vX.Y.Z
+git push -u origin release/vX.Y.Z
+```
+
+**Step 2 — Stabilize on the release branch:**
+- Only bug fixes, documentation, and release-prep commits allowed (no new features)
+- Update version numbers in `package.json`, `version.ts`, or equivalent
+- Update `CHANGELOG.md` — move `[Unreleased]` entries under `[vX.Y.Z] - YYYY-MM-DD`
+- Run full test suite and verification
+- Commit type: `chore(release): prepare vX.Y.Z`
+
+**Step 3 — Merge to master and tag:**
+```bash
+git checkout master
+git merge --no-ff release/vX.Y.Z -m "release: vX.Y.Z"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin master --tags
+```
+
+**Step 4 — Merge back to develop:**
+```bash
+git checkout develop
+git merge --no-ff release/vX.Y.Z -m "chore: merge release/vX.Y.Z back to develop"
+git push origin develop
+```
+
+**Step 5 — Clean up:**
+```bash
+git branch -d release/vX.Y.Z
+git push origin --delete release/vX.Y.Z
+```
+
+**Step 6 — Create GitHub Release:**
+```bash
+gh release create vX.Y.Z --title "vX.Y.Z" --notes-file RELEASE_NOTES.md
+```
+
+#### Quick Release (no stabilization needed)
+When `develop` is already stable and no release branch is needed:
+```bash
+git checkout master && git merge --no-ff develop -m "release: vX.Y.Z"
+git tag -a vX.Y.Z -m "Release vX.Y.Z"
+git push origin master --tags
+gh release create vX.Y.Z --title "vX.Y.Z" --generate-notes
+```
+Then update CHANGELOG and merge the tag back to develop.
+
+#### Release Fixes
+If bugs are found during release stabilization:
+1. Fix directly on the `release/vX.Y.Z` branch
+2. Commit: `fix(scope): description` (no story reference needed for release fixes)
+3. These fixes flow to both `master` (via merge) and `develop` (via back-merge)
 
 ### Hotfix
 1. Branch from master: `git checkout -b hotfix/<desc> master`

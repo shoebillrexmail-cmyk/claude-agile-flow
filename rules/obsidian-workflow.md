@@ -41,7 +41,9 @@
 │   ├── Decisions/                # Architecture decision records
 │   ├── Daily/                    # Daily logs
 │   └── Retros/                   # Sprint retrospectives
-└── Archive/                      # Completed sprints and old boards
+└── Archive/                      # Completed sprints, old boards, and release records
+    ├── Sprint-YYYY-MM-DD.md      # Archived sprint boards
+    └── Release-vX.Y.Z.md         # Release records with checklist and included stories
 ```
 
 ## Agile Hierarchy
@@ -372,6 +374,66 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 **Sprint retro:**
 1. Create `Notes/Retros/YYYY-MM-DD.md` with what went well, what didn't, actions
 
+### 10. Release Lifecycle
+
+**Trigger**: User says "release", "cut a release", "deploy to production", or all sprint stories are Done and the user wants to ship.
+
+**Step 1 — Determine version:**
+1. Read `CHANGELOG.md` `[Unreleased]` section to understand what's shipping
+2. Check `git log master..develop --oneline` for commit history since last release
+3. Suggest a version based on semantic versioning:
+   - Breaking changes → MAJOR bump
+   - New features → MINOR bump
+   - Bug fixes only → PATCH bump
+4. Ask user to confirm the version: `vX.Y.Z`
+
+**Step 2 — Create release artifact in vault:**
+1. Create `Archive/Release-vX.Y.Z.md` with:
+   ```markdown
+   # Release vX.Y.Z
+
+   **Date**: YYYY-MM-DD
+   **Sprint**: (link to archived sprint board if applicable)
+   **Branch**: `release/vX.Y.Z`
+
+   ## Stories Included
+   - [[STORY-name-1]]: summary
+   - [[STORY-name-2]]: summary
+
+   ## Changes
+   (copied from CHANGELOG [Unreleased] entries)
+
+   ## Release Checklist
+   - [ ] Version bumped in source
+   - [ ] CHANGELOG updated (Unreleased → vX.Y.Z)
+   - [ ] Release branch cut from develop
+   - [ ] Full test suite passes
+   - [ ] Release fixes applied (if any)
+   - [ ] Merged to master
+   - [ ] Tagged vX.Y.Z
+   - [ ] Back-merged to develop
+   - [ ] GitHub Release created
+   - [ ] Release branch deleted
+   ```
+
+**Step 3 — Execute the release** (follows git-workflow.md "Release Flow"):
+1. Cut release branch from develop
+2. Bump version in source files (`package.json`, etc.)
+3. Update CHANGELOG — move `[Unreleased]` to `[vX.Y.Z] - YYYY-MM-DD`
+4. Commit: `chore(release): prepare vX.Y.Z`
+5. Run full test suite — if tests fail, fix on the release branch
+6. Ask user for final confirmation before merging to master
+7. Merge to master (no-ff), tag, push
+8. Back-merge to develop, push
+9. Create GitHub Release with release notes
+10. Delete release branch
+11. Check off items in `Archive/Release-vX.Y.Z.md`
+
+**Quick release (small/simple):**
+- Skip the release branch — merge develop directly to master
+- Still tag, update CHANGELOG, create GitHub Release
+- Still create `Archive/Release-vX.Y.Z.md` for traceability
+
 ---
 
 ## Git Integration Summary
@@ -382,7 +444,10 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 | Story picked up (In Progress) | Checkout / worktree on that branch |
 | Story completed (In Review) | Push branch, create PR → `develop` |
 | Story accepted (Done) | PR merged, branch deleted, worktree removed |
-| Release | `develop` merged → `master`, tagged `vX.Y.Z` |
+| Release started | Branch `release/vX.Y.Z` cut from `develop` |
+| Release stabilized | Bug fixes committed directly on `release/vX.Y.Z` |
+| Release shipped | `release/vX.Y.Z` merged → `master`, tagged `vX.Y.Z`, back-merged → `develop` |
+| Quick release | `develop` merged → `master` directly, tagged `vX.Y.Z` |
 | Hotfix | Branch from `master`, PR → `master` + `develop` |
 
 See [git-workflow.md](./git-workflow.md) for full branching strategy and worktree usage.
