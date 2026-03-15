@@ -215,15 +215,24 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 - **Test commits** come first: `test(scope): add tests for [component]\n\nStory: STORY-<name>`
 
 ### 4. Completing Work
-1. Move item from "In Progress" to "In Review" on `Sprint/Board.md`
-2. Update the story's **Status** to `In Review`
-3. **Git**: Push the feature branch and create a PR → `develop`:
+1. **Documentation gate** (before PR):
+   a. Check `git diff develop...HEAD --name-only` for what changed
+   b. Update repo docs affected by changes: README, CHANGELOG (`[Unreleased]`), API docs, config/env docs, stale inline comments
+   c. Commit: `docs(scope): update documentation for STORY-<name>`
+   d. If story adds/changes user-visible behavior (new features, UI changes, CLI commands, API contracts):
+      - Create `Backlog/Stories/STORY-docs-<name>.md` — "Update user documentation for [feature]"
+      - Add to `Backlog/Product-Backlog.md` under "Needs Refinement"
+   e. Skip user-facing docs task for purely internal changes (refactoring, tests, infrastructure)
+2. Move item from "In Progress" to "In Review" on `Sprint/Board.md`
+3. Update the story's **Status** to `In Review`
+4. **Git**: Push the feature branch and create a PR → `develop`:
    ```
    git push -u origin feature/STORY-<name>
    gh pr create --base develop --title "STORY-<name>: <summary>"
    ```
-4. Update the story's **PR** field with the PR link
-5. **Automated Review Cycle** (triggered automatically by `/agile-flow:done`, max 3 cycles):
+   Include user-facing docs task reference in PR body if created.
+5. Update the story's **PR** field with the PR link
+6. **Automated Review Cycle** (triggered automatically by `/agile-flow:done`, max 3 cycles):
    a. Detect changed files: `git diff develop...HEAD --name-only`
    b. Detect project type (OPNet, Go, Python, general)
    c. Launch relevant review agents **in parallel**:
@@ -243,7 +252,7 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
       - Repeat until PASS or max cycles reached
    f. **If max cycles reached**: report remaining OPEN findings, ask user to fix manually, accept as-is, or leave in review
    g. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
-6. Ask the user: "Story is done. Exit worktree?"
+7. Ask the user: "Story is done. Exit worktree?"
    - If yes: use `ExitWorktree` with action `keep` (preserves branch until PR merges)
    - If user wants to continue with another story: exit worktree, then `EnterWorktree` for the next story
 7. **Git cleanup** (after PR merged): use `ExitWorktree` with action `remove`, or:
