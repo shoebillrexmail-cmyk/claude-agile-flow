@@ -133,17 +133,35 @@ If `--skip-fix` was passed: report all findings and stop (no fix attempt).
 
 If `cycle < max_cycles`:
 1. Display findings summary: "{N} blocking issues found (cycle {cycle}/{max_cycles})"
-2. For each blocking finding, identify the fix:
-   - Route to the appropriate scope based on the finding's file and agent
-   - Apply the fix in the worktree
-3. Stage and commit fixes:
+2. For each blocking finding, apply **Structured Repair (R1/R2/R3)**:
+
+   **Phase R1 — LOCALIZE** (read-only analysis):
+   - Identify the exact file, function, and line range responsible for the finding
+   - Classify the root cause: logic error, missing validation, wrong API usage, security flaw, etc.
+   - Produce a localization summary: `{file}:{line_range} — {suspected_cause}`
+
+   **Phase R2 — PATCH** (generate fix):
+   - Using only the localized context (not the full codebase), generate the fix
+   - For complex findings, generate up to 3 candidate approaches
+   - Each fix should be minimal — change only what's needed to resolve the finding
+   - Follow specialist rules (OPNet patterns, Go idioms, Python conventions, etc.)
+
+   **Phase R3 — VALIDATE** (verify fix):
+   - Apply the fix
+   - Run the relevant tests to confirm it works
+   - Check that the fix doesn't break existing tests
+   - If tests fail: try next candidate (if multiple were generated)
+   - If all candidates fail: flag as "needs manual fix" and continue to next finding
+
+3. Stage and commit all successful fixes:
    ```
    fix(<scope>): address review findings (cycle <cycle>)
 
+   Findings fixed: F-001, F-003, F-007
    Story: STORY-<name>
    ```
 4. Push to the feature branch: `git push`
-5. Update ledger: mark fixed findings as `RESOLVED` with current cycle number
+5. Update ledger: mark fixed findings as `RESOLVED` with current cycle number. Mark unfixable findings as `OPEN (manual fix needed)`.
 6. Increment cycle: `cycle = cycle + 1`
 7. Loop back to **5a** (incremental review)
 
@@ -165,7 +183,33 @@ If `cycle >= max_cycles` (max iterations reached):
 
 ---
 
-## Step 6: Complete Review (Move to Done)
+## Step 6: Hard Gates (before completing)
+
+Before moving to Done, enforce these non-negotiable quality gates:
+
+### Gate 1: Tests Must Pass
+- Run the project's test suite (`npm test`, `go test ./...`, `pytest`, etc.)
+- If tests fail: DO NOT move to Done. Report which tests failed and ask user to fix.
+
+### Gate 2: No CRITICAL Security Findings
+- If any `security-reviewer` or `opnet-auditor` finding with severity CRITICAL is still OPEN: BLOCK.
+- Report: "Cannot complete — {N} CRITICAL security findings remain. These must be resolved."
+
+### Gate 3: Coverage Check (if coverage tooling exists)
+- Run coverage check if tools are configured
+- If coverage < 80%: WARN (do not block, but report the gap)
+- Report: "Coverage is {N}% (target: 80%). Consider adding tests."
+
+### Gate 4: OPNet Contract Tests (if OPNet contract project)
+- If contract files were changed, verify contract tests exist and pass
+- If no contract tests exist for changed methods: WARN strongly
+
+If any BLOCKING gate fails: leave in "In Review", report what needs fixing.
+If only WARNINGs: report them, proceed to Done (user decides).
+
+---
+
+## Step 7: Complete Review (Move to Done)
 
 1. Move item from "In Review" to "Done" on `Sprint/Board.md`
 2. Update the story's **Status** to `Done`

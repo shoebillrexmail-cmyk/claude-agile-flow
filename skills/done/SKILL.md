@@ -52,4 +52,12 @@ Complete the current story and create a pull request.
    - Cycle repeats until PASS or max cycles reached
    - On PASS: moves story to Done automatically
    - On max cycles exceeded: reports remaining issues, asks user how to proceed
-9. After review passes (or user accepts advisory-only findings), ask: "Story is done. Exit worktree, or continue with another story?"
+9. **Learning extraction**: Run `/agile-flow:learn` to extract learnings from the completed story:
+   - Analyzes what changed, what was caught in review, what specialist feedback was key
+   - Generates learning documents in the vault's `Learning/` folder:
+     - **Integration Guides** — when new technologies/services were integrated
+     - **Patterns** — anti-patterns and gotchas discovered during review
+     - **Writeups** — educational deep-dives on complex problems solved
+   - Updates `Learning/Index.md` and links learnings back to the story
+   - Skipped for trivial/routine changes with no novel learnings
+10. After learning extraction, ask: "Story is done. Exit worktree, or continue with another story?"

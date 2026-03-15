@@ -56,7 +56,34 @@ If OPNet project detected:
 - Load OPNet rules: no Buffer, SafeMath required, no constructor logic, ECDSA deprecated, `signer: null` on frontend, `networks.opnetTestnet` for testnet
 - Note any OPNet-specific constraints from the story's pitfalls section
 
-## Step 4: Verify Testing Infrastructure
+## Step 4: Consult Prior Learnings
+
+Check the vault's `Learning/` folder for relevant knowledge from past stories:
+
+1. Read `Learning/Index.md` to scan the catalog
+2. **Search Patterns**: Check `Learning/Patterns/` for anti-patterns matching this story's domain:
+   - If OPNet contract story → look for contract-related patterns (storage, SafeMath, gas)
+   - If frontend story → look for UI/wallet/React patterns
+   - If API story → look for security/validation patterns
+   - Match by domain tag in pattern files
+3. **Search Integration Guides**: Check `Learning/Integrations/` for guides on technologies this story will use:
+   - If the story's spec references a technology that has a guide → load it
+   - Flag guides with "Confidence: Low" — these may need updating
+4. **Search Writeups**: Check `Learning/Writeups/` for relevant prior deep-dives:
+   - Look for writeups in the same domain as this story
+   - Especially useful if the story is related to a previous complex story
+
+Include relevant learnings in the development brief (Step 6):
+```
+### Prior Learnings (from past stories)
+- PATTERN-<name>: [summary] — avoid this
+- GUIDE-<name>: [summary] — reference for [technology]
+- WRITEUP-<name>: [summary] — relevant context
+```
+
+If no relevant learnings found, note: "No prior learnings for this domain yet."
+
+## Step 5: Verify Testing Infrastructure
 
 Before entering the worktree, check that the testing infrastructure is ready:
 
@@ -68,7 +95,7 @@ Report test infrastructure status:
 - "Test framework: [name] (ready)" or "Test framework: not found — will need setup"
 - "Coverage tool: [name] (ready)" or "Coverage tool: not configured"
 
-## Step 5: Enter Worktree and Start Work
+## Step 6: Enter Worktree and Start Work
 
 1. Move the item from "Ready" to "In Progress" on `Sprint/Board.md`
 2. Update the story's **Status** to `In Progress`
@@ -76,7 +103,7 @@ Report test infrastructure status:
 4. Inside the worktree, rename the branch: `git branch -m feature/STORY-<name>`
 5. Symlink gitignored files from main repo (`.env`, `.env.local`, etc.)
 
-## Step 6: Present Development Brief
+## Step 7: Present Development Brief
 
 Report to the user with a structured development brief:
 
@@ -110,7 +137,7 @@ Known pitfalls:
 ...
 ```
 
-## Step 7: Begin Implementation (TDD Workflow)
+## Step 8: Begin Implementation (TDD Workflow)
 
 Start implementation following TDD discipline:
 

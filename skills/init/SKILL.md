@@ -18,6 +18,11 @@ If no argument, ask for the project name.
    ├── Specs/Technical/
    ├── Specs/API/
    ├── Research/
+   ├── Learning/
+   │   ├── Index.md
+   │   ├── Integrations/
+   │   ├── Patterns/
+   │   └── Writeups/
    ├── Notes/Decisions/
    ├── Notes/Daily/
    ├── Notes/Retros/

@@ -25,6 +25,14 @@
 │   │   └── SPEC-<component>.md   # Technical design documents
 │   └── API/
 │       └── SPEC-<endpoint>.md    # API contracts
+├── Learning/
+│   ├── Index.md                  # Catalog of all learnings
+│   ├── Integrations/
+│   │   └── GUIDE-<tech>.md       # How-to guides for integrations
+│   ├── Patterns/
+│   │   └── PATTERN-<name>.md     # Anti-patterns, gotchas, best practices
+│   └── Writeups/
+│       └── WRITEUP-<topic>.md    # Educational deep-dives on complex problems
 ├── Research/
 │   ├── SPIKE-<topic>.md          # Time-boxed investigations
 │   ├── POC-<topic>.md            # Proof of concepts
@@ -186,7 +194,12 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
    - Load domain-specific knowledge (OPNet slices, Go patterns, Python standards, etc.)
    - Note known pitfalls to avoid during implementation
    - If specialist context is missing (legacy story), auto-detect project type
-5. **Verify testing infrastructure**: Check test framework, coverage tools, test scripts exist
+5. **Consult prior learnings**: Read `Learning/Index.md` and search for relevant entries:
+   - Check `Learning/Patterns/` for anti-patterns related to this story's domain
+   - Check `Learning/Integrations/` for guides on technologies this story will use
+   - Check `Learning/Writeups/` for relevant prior deep-dives
+   - Include relevant learnings in the development brief — these are lessons from past experience
+6. **Verify testing infrastructure**: Check test framework, coverage tools, test scripts exist
 6. Respect WIP limit: max 2-3 items in "In Progress" at once
 7. **MANDATORY — Enter a worktree before writing any code**:
    a. If already in a worktree, skip to step 8
@@ -245,17 +258,29 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
       - **If OPNet multi-layer**: `cross-layer-validator`, `dependency-auditor`
    d. Collect findings, assign IDs, track in findings ledger (OPEN/RESOLVED/REGRESSION)
    e. **If CRITICAL/HIGH findings (FAIL verdict)**:
-      - Fix in worktree, commit: `fix(<scope>): address review findings (cycle N)`
+      - Apply **Structured Repair (R1/R2/R3)**: LOCALIZE (read-only) → PATCH (generate fix) → VALIDATE (run tests)
+      - Commit fixes: `fix(<scope>): address review findings (cycle N)`
       - Push, increment cycle
       - **Re-review incrementally** — only re-run agents that had findings, with diff context
       - Regressions (fixed then reappeared) → auto-elevated to CRITICAL
       - Repeat until PASS or max cycles reached
    f. **If max cycles reached**: report remaining OPEN findings, ask user to fix manually, accept as-is, or leave in review
-   g. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
-7. Ask the user: "Story is done. Exit worktree?"
+   g. **Hard Gates** (before completing):
+      - Tests must pass (BLOCKS if failing)
+      - No CRITICAL security findings may remain (BLOCKS)
+      - Coverage check — warn if < 80% (does not block)
+      - OPNet contract tests must exist for changed methods (WARNS)
+   h. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
+7. **Learning extraction** — run `/agile-flow:learn` to generate educational content:
+   - Analyze what was built, what was caught in review, what specialist feedback was key
+   - Generate **Integration Guides** (new tech), **Patterns** (anti-patterns/gotchas), **Writeups** (complex solutions)
+   - Save to `Learning/` in the vault, update `Learning/Index.md`
+   - Link learnings back to the story file
+   - Skip for routine changes with no novel learnings
+8. Ask the user: "Story is done. Exit worktree?"
    - If yes: use `ExitWorktree` with action `keep` (preserves branch until PR merges)
    - If user wants to continue with another story: exit worktree, then `EnterWorktree` for the next story
-7. **Git cleanup** (after PR merged): use `ExitWorktree` with action `remove`, or:
+9. **Git cleanup** (after PR merged): use `ExitWorktree` with action `remove`, or:
    ```
    git branch -d feature/STORY-<name>
    ```
@@ -375,7 +400,7 @@ See [git-workflow.md](./git-workflow.md) for full branching strategy and worktre
 
 ## Adding a New Project
 1. Create folder: `C:\Obsidian_Vaults\<ProjectName>\`
-2. Create subfolders: `Sprint/`, `Backlog/Epics/`, `Backlog/Stories/`, `Specs/Features/`, `Specs/Technical/`, `Specs/API/`, `Research/`, `Notes/Decisions/`, `Notes/Daily/`, `Notes/Retros/`, `Archive/`
+2. Create subfolders: `Sprint/`, `Backlog/Epics/`, `Backlog/Stories/`, `Specs/Features/`, `Specs/Technical/`, `Specs/API/`, `Learning/Integrations/`, `Learning/Patterns/`, `Learning/Writeups/`, `Research/`, `Notes/Decisions/`, `Notes/Daily/`, `Notes/Retros/`, `Archive/`
 3. Copy templates for `Sprint/Board.md` and `Backlog/Product-Backlog.md`
 4. Create `Roadmap.md`
 5. Add `## Obsidian Project` section to the code repo's CLAUDE.md
