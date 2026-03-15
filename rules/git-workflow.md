@@ -29,6 +29,49 @@ feature/STORY-<name> (one branch per story)
 - Keep feature branches up to date: `git rebase develop` before PR
 - Branch names match story names: `feature/STORY-auth-login` maps to `Backlog/Stories/STORY-auth-login.md`
 
+## Branch → Environment Mapping
+
+Branches map to deployment environments. CI/CD pipelines should deploy automatically based on which branch receives a push:
+
+```
+feature/STORY-*  ──PR──▶  develop  ──PR──▶  master
+     │                       │                  │
+  Preview only         Staging / Testnet     Production / Mainnet
+  (frontend)          (full deploy pipeline)  (full deploy pipeline)
+```
+
+| Branch | Environment | Deploys |
+|--------|-------------|---------|
+| `feature/*`, `hotfix/*` | Preview | Frontend only (temporary preview URL) |
+| `develop` | Staging / Testnet | Contracts (if changed) → Indexer → Frontend |
+| `master` | Production / Mainnet | Contracts (if changed) → Indexer → Frontend |
+
+### Deployment Config Pattern
+
+Use a `deployments/` directory to track what's deployed per environment:
+
+```
+deployments/
+├── testnet.json    # addresses, hashes, timestamps for staging
+├── mainnet.json    # addresses, hashes, timestamps for production
+```
+
+These files are committed to the repo and updated by CI after successful deployments. They serve as the single source of truth for "what's deployed where" — downstream jobs (indexer, frontend) read addresses from these files.
+
+When CI commits deployment config back to a branch, use `[skip ci]` in the commit message to prevent infinite loops.
+
+### Sync Before Work (MANDATORY)
+
+Before starting any work or entering a worktree, always sync with the remote to pick up CI-generated commits (e.g., deployment config updates):
+
+```bash
+git fetch origin
+# Fast-forward develop if behind (CI may have committed deployment configs)
+git merge --ff-only origin/develop 2>/dev/null || true
+```
+
+This ensures you always have the latest deployed addresses and configuration. Without this, local builds may use stale contract addresses.
+
 ## Git Worktrees (Parallel Sessions)
 
 Git worktrees allow multiple Claude Code sessions to work on different stories simultaneously, each in its own directory with its own branch.
