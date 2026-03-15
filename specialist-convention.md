@@ -98,4 +98,3 @@ If no domain plugin is installed, agile-flow still works with its built-in gener
 - `planner` — implementation planning
 
 Language-specific reviewers (`go-reviewer`, `python-reviewer`) are built into Claude Code and always available — they don't require a domain plugin.
-```

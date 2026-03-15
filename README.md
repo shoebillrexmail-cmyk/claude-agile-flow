@@ -424,6 +424,108 @@ STORY-login    STORY-pay    STORY-ui
 - The Obsidian vault is shared across all sessions
 - Branch-to-environment mapping: `feature/*` → preview, `develop` → staging/testnet, `master` → production/mainnet
 
+## Domain Plugin Integration
+
+agile-flow is general-purpose — it works for any project without domain-specific plugins. But when a domain plugin is installed, agile-flow automatically discovers and uses its specialist agents, domain rules, and test types.
+
+### How it works
+
+Domain plugins provide a `specialists.md` file that follows a standard convention. agile-flow discovers these during story creation, pickup, and review.
+
+```
+┌─────────────────────────────┐     ┌──────────────────────────────┐
+│       agile-flow            │     │     domain plugin            │
+│                             │     │     (e.g. opnet-knowledge)   │
+│  story / pickup / review    │────▶│     specialists.md           │
+│                             │     │                              │
+│  "Which agents should I     │     │  - Detection rules           │
+│   use for this project?"    │     │  - Agent tables              │
+│                             │     │  - Domain rules              │
+└─────────────────────────────┘     │  - Test types                │
+                                    │  - MCP tools                 │
+                                    └──────────────────────────────┘
+```
+
+### The specialists.md format
+
+Domain plugins provide this file at their plugin root:
+
+```markdown
+---
+domain: <name>
+description: <one-line>
+---
+
+## Detection
+How to detect this domain (package.json deps, config files, imports)
+
+## Agents
+### Story Creation — agents to consult for approach feedback
+### Development — agents to invoke at trigger points during coding
+### Review — agents to run during /agile-flow:review
+
+## Domain Rules
+Constraints to enforce during development
+
+## Test Types
+Additional test categories beyond unit/integration/E2E
+
+## MCP Tools
+Optional MCP tools that enrich the workflow
+```
+
+See [specialist-convention.md](specialist-convention.md) for the full specification.
+
+### Discovery order
+
+agile-flow finds specialist configs through:
+
+1. **Story file** — the `## Specialist Context` section (populated at creation time)
+2. **Installed plugins** — `specialists.md` files in plugin directories
+3. **Project CLAUDE.md** — a `## Specialists` section pointing to the domain plugin
+4. **Loaded rules** — domain routing rules in `~/.claude/rules/`
+
+### Without domain plugins
+
+agile-flow always provides these built-in agents regardless of domain:
+
+| Agent | Purpose |
+|-------|---------|
+| `code-reviewer` | General code quality, patterns, maintainability |
+| `security-reviewer` | Security vulnerabilities, secrets, OWASP top 10 |
+| `tdd-guide` | Test-driven development enforcement |
+| `architect` | System design and architectural decisions |
+| `go-reviewer` | Idiomatic Go patterns (if Go files detected) |
+| `python-reviewer` | PEP 8 and Pythonic patterns (if Python files detected) |
+
+### Creating a domain plugin
+
+To add specialist support for a new domain (e.g. Rust, Elixir, Kubernetes):
+
+1. Create a plugin with agents for your domain
+2. Add a `specialists.md` following the convention above
+3. Optionally add a rule to `~/.claude/rules/` for auto-routing
+4. Projects using your domain add `## Specialists` to their CLAUDE.md
+
+### Example: OPNet integration
+
+The [opnet-knowledge](https://github.com/shoebillrexmail-cmyk/opnet-knowledge) plugin implements this convention for Bitcoin L1 smart contract development:
+
+```
+# In the project's CLAUDE.md:
+## Specialists
+Domain plugin: opnet-knowledge
+Detection: @btc-vision/ in package.json, asconfig.json exists
+
+# agile-flow then discovers:
+- 3 story creation agents (contract-dev, frontend-dev, backend-dev)
+- 4 development trigger agents (contract patterns, wallet integration, RPC, TLA+)
+- 6 review agents (auditor, optimizer, analyzers, cross-layer, dependencies)
+- Domain rules (SafeMath, no Buffer, ML-DSA signatures, signer patterns)
+- 3 test types (contract tests, on-chain E2E, adversarial)
+- 6 MCP tools (audit, dev guidance, incident queries, deployment)
+```
+
 ## Slash Commands (Plugin Mode)
 
 If you want explicit slash commands in addition to natural language, run Claude with:
@@ -476,6 +578,7 @@ claude-agile-flow/
 │   ├── Integration-Guide-template.md
 │   ├── Pattern-template.md
 │   └── Writeup-template.md
+├── specialist-convention.md      # How domain plugins integrate
 ├── install.sh                   # One-command setup
 └── README.md
 ```
