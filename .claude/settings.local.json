@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -v \"^$\")",
+      "Bash(/tmp/summary.txt:*)",
+      "Read(//tmp/**)",
+      "Bash(grep:*)"
+    ]
+  }
+}
