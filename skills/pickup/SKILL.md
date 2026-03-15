@@ -39,10 +39,12 @@ Read the story's `## Specialist Context` section. It contains:
 Load the recommended specialists. If the story references domain-specific agents, those agents are available because the domain plugin is installed.
 
 ### If specialist context is missing (legacy stories):
-Run project type detection (same as story creation Step 2):
+Run project type detection (same as story creation Step 2) using ALL discovery sources:
 - Check for language/framework indicators (go.mod, package.json, pyproject.toml, etc.)
-- Search for domain specialist configs from installed plugins
-- Note: "This story was created without specialist context — auto-detected as [type]"
+- **Scan loaded rules** in `~/.claude/rules/` for domain routing files — check their detection criteria against this project. If the project matches, load that domain's development triggers, review agents, and rules.
+- Search for installed plugin `specialists.md` files
+- Check project CLAUDE.md for `## Specialists` section
+- Note: "This story was created without specialist context — auto-detected as [type]. Domain routing loaded from [source]."
 
 ### Always available (built-in):
 These agents are always available regardless of domain:
@@ -178,7 +180,9 @@ Proactively invoke specialist agents at these trigger points:
 | Writing Python code | `python-reviewer` | Check PEP 8, type hints, Pythonic patterns |
 | Stuck on implementation | `planner` | Re-plan approach with specialist input |
 
-**Domain-specific triggers (from specialist config):**
-Check the story's `## Specialist Context` for the development agent trigger table. If a trigger condition is met, invoke the specified domain agent.
+**Domain-specific triggers (from ALL discovery sources — not optional):**
+Check BOTH of these sources for development agent triggers:
+1. The story's `## Specialist Context` — development agent trigger table
+2. Loaded rules in `~/.claude/rules/` — domain routing files with development trigger tables
 
-These are not optional — if the trigger condition is met, invoke the specialist.
+Sources are additive. A domain routing file applies even if the story has no specialist context. If a trigger condition is met in EITHER source, invoke the specified domain agent. These are not optional.

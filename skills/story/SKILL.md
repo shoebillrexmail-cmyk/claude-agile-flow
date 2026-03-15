@@ -21,13 +21,13 @@ Before writing anything, detect what kind of project this is.
 - Check for `prisma/`, `drizzle/`, or migration dirs → Database project
 - Check for existing test framework (`jest.config`, `vitest.config`, `pytest.ini`, `*_test.go`) → Note test tooling
 
-**Domain specialist discovery:**
-Search for specialist configurations provided by installed domain plugins. Check:
-1. Installed plugin directories for `specialists.md` files
-2. Loaded rules in `~/.claude/rules/` that contain specialist routing (e.g., agent routing rules)
-3. CLAUDE.md for a `## Specialists` section
+**Domain specialist discovery (MANDATORY — check ALL sources):**
+Search for specialist configurations from every discovery source. These are additive, not alternatives:
+1. **Loaded rules** in `~/.claude/rules/` — scan for files containing domain-specific routing logic (detection criteria, agent trigger tables). If the project matches a routing file's detection criteria, all its agents, rules, and triggers are active and binding.
+2. **Installed plugin `specialists.md` files** — domain plugins may provide structured specialist configs.
+3. **Project CLAUDE.md** — a `## Specialists` section may point to specific configs.
 
-For each discovered specialist config, check its **Detection** rules against the current project. If detection matches, load that domain's agents, rules, and test types.
+For each discovered specialist config or routing rule, check its **Detection** rules against the current project. If detection matches, load that domain's agents, rules, and test types.
 
 **Build a specialist roster** from all matches. Always include these general-purpose agents:
 

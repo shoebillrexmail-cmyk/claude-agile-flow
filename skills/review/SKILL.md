@@ -52,13 +52,17 @@ Build the review agent list from two sources:
 | Go files changed | `go-reviewer` | Idiomatic Go, concurrency, error handling |
 | Python files changed | `python-reviewer` | PEP 8, type hints, Pythonic patterns |
 
-### Domain-specific agents (from specialist configs):
+### Domain-specific agents (MANDATORY — check ALL discovery sources):
 
-Read the story's `## Specialist Context` to find the domain. Then load the domain plugin's specialist config and read its **Review** section for the agent table.
+Domain agents are discovered from multiple sources. Check ALL of them — not just one:
 
-For each entry in the Review agents table, check if the condition is met (based on changed files), and add the agent to the dispatch list.
+1. **Story's Specialist Context** — read `## Specialist Context` to find the domain. If it lists review agents, add them.
+2. **Loaded rules in `~/.claude/rules/`** — scan for files that contain domain-specific routing logic (agent trigger tables, detection criteria). If the current project matches a routing file's detection criteria, its review agents are MANDATORY — add them to the dispatch list.
+3. **Installed plugin `specialists.md` files** — if a domain plugin provides a `specialists.md`, read its **Review** section for the agent table.
 
-If no specialist config is available, check loaded rules for domain-specific routing logic.
+For each entry in any Review agents table (from any source), check if the condition is met (based on changed files), and add the agent to the dispatch list.
+
+**Important**: Sources 1-3 are additive, not alternatives. A project may match domain routing rules even if the story has no specialist context (legacy stories, or story created without `/agile-flow:story`). Always check loaded rules independently of the story.
 
 ### Domain MCP enrichment (from specialist config):
 
