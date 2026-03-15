@@ -4,6 +4,7 @@
 **Epic**: [[EPIC-name]]
 **Status**: Draft | In Review | Approved
 **Author**:
+**Project type**: [detected type]
 
 ## Overview
 Brief description of the feature.
@@ -39,9 +40,65 @@ Link to API spec if applicable: [[API-endpoint-name]]
 ## UI/UX
 Wireframes, mockups, or descriptions of the interface.
 
+## Specialist Considerations
+
+### Approach Recommendations
+(Captured from specialist agent consultation during story creation)
+- [recommendation 1]
+- [recommendation 2]
+
+### Domain-Specific Rules
+(For OPNet: no Buffer, SafeMath required, no constructor logic, ECDSA deprecated, etc.)
+(For Go: idiomatic patterns, error handling conventions)
+(For Python: PEP 8, type hints, async patterns)
+
+### Known Pitfalls
+- [pitfall 1 — from specialist or incident history]
+- [pitfall 2]
+
 ## Edge Cases
 - Edge case 1: how to handle
 - Edge case 2: how to handle
+
+## Security Considerations
+(From security-reviewer consultation)
+- Authentication:
+- Authorization:
+- Input validation:
+- Data sanitization:
+
+## Testing Strategy
+
+### Unit Tests
+| Component/Function | Test Scenario | Priority |
+|-------------------|---------------|----------|
+| [component] | Happy path | Must have |
+| [component] | Error case | Must have |
+| [component] | Edge case | Should have |
+
+### Integration Tests
+| Interaction | Test Scenario | Priority |
+|------------|---------------|----------|
+| [API endpoint / module boundary] | Valid request/response | Must have |
+| [DB operation] | CRUD with real connection | Must have |
+
+### Contract Tests (OPNet projects)
+| Contract Method | Test Scenario | Priority |
+|----------------|---------------|----------|
+| [method] | Valid inputs, verify state change | Must have |
+| [method] | Invalid inputs, verify revert | Must have |
+| [method] | Boundary values (0, MAX_U256) | Must have |
+| [method] | Access control (unauthorized caller) | Must have |
+
+### E2E Tests
+| User Flow | Steps | Priority |
+|----------|-------|----------|
+| [flow] | [step-by-step] | Must have |
+
+### Test Coverage Target
+- Overall: 80%+
+- Critical paths: 100%
+- Edge cases: documented and tested
 
 ## Out of Scope
 What this spec explicitly does NOT cover.

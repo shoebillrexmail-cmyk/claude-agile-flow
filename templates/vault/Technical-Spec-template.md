@@ -3,6 +3,7 @@
 **Story**: [[STORY-name]]
 **Epic**: [[EPIC-name]]
 **Status**: Draft | In Review | Approved
+**Project type**: [detected type]
 
 ## Context
 Why is this technical work needed?
@@ -13,12 +14,30 @@ Why is this technical work needed?
 High-level architecture description.
 
 ### Components
-| Component | Responsibility |
-|-----------|---------------|
-| | |
+| Component | Responsibility | Specialist |
+|-----------|---------------|-----------|
+| | | [agent that should review this] |
 
 ### Data Flow
 Describe how data moves through the system.
+
+## Specialist Recommendations
+
+### Approach
+(From specialist consultation — architectural advice, patterns to follow)
+- [recommendation 1]
+- [recommendation 2]
+
+### Domain-Specific Constraints
+(OPNet: storage pointer ordering, SafeMath, no Buffer, ML-DSA signatures)
+(Go: interface design, goroutine patterns, channel usage)
+(Python: async/await patterns, dependency injection)
+- [constraint 1]
+- [constraint 2]
+
+### Known Pitfalls
+- [pitfall 1 — how to avoid]
+- [pitfall 2 — how to avoid]
 
 ## Implementation Plan
 1. Step 1
@@ -39,11 +58,36 @@ Describe how data moves through the system.
 - Authentication:
 - Authorization:
 - Data validation:
+- Input sanitization:
 
 ## Testing Strategy
-- Unit tests:
-- Integration tests:
-- E2E tests:
+
+### Unit Tests
+| Component | What to Test | Framework |
+|-----------|-------------|-----------|
+| [component] | [behavior] | [jest/vitest/pytest/go test] |
+
+### Integration Tests
+| Boundary | What to Test | Setup Required |
+|----------|-------------|---------------|
+| [API/DB/service] | [interaction] | [test DB, mock server, etc.] |
+
+### Contract Tests (OPNet)
+| Method | Scenarios | Boundary Values |
+|--------|----------|----------------|
+| [method] | [happy path, error, access control] | [0, MAX, edge values] |
+
+### E2E Tests
+| Flow | Steps | Expected Result |
+|------|-------|----------------|
+| [flow] | [steps] | [outcome] |
+
+### TDD Workflow
+1. Write tests for each component BEFORE implementation
+2. Run tests — confirm they FAIL (RED)
+3. Implement minimal code to pass (GREEN)
+4. Refactor (IMPROVE)
+5. Verify coverage >= 80%
 
 ## Rollback Plan
 How to revert if something goes wrong.
@@ -51,6 +95,7 @@ How to revert if something goes wrong.
 ## Dependencies
 - External services:
 - Internal modules:
+- Specialist agents for development: [list]
 
 ---
 *Created: {{date}}*

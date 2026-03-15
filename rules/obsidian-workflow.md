@@ -181,20 +181,38 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 1. Move the item from "Ready" to "In Progress" on `Sprint/Board.md`
 2. Update the linked story's **Status** to `In Progress`
 3. Read the story file and any linked specs before coding
-4. Respect WIP limit: max 2-3 items in "In Progress" at once
-5. **MANDATORY — Enter a worktree before writing any code**:
-   a. If already in a worktree, skip to step 6
+4. **Load specialist context** from the story's `## Specialist Context` section:
+   - Identify project type and recommended specialist agents
+   - Load domain-specific knowledge (OPNet slices, Go patterns, Python standards, etc.)
+   - Note known pitfalls to avoid during implementation
+   - If specialist context is missing (legacy story), auto-detect project type
+5. **Verify testing infrastructure**: Check test framework, coverage tools, test scripts exist
+6. Respect WIP limit: max 2-3 items in "In Progress" at once
+7. **MANDATORY — Enter a worktree before writing any code**:
+   a. If already in a worktree, skip to step 8
    b. Use `EnterWorktree` with name `STORY-<name>`
    c. Rename the branch: `git branch -m feature/STORY-<name>`
    d. The session is now isolated — other sessions won't conflict
    e. Only skip worktree if the user explicitly says "don't use a worktree"
+8. Present development brief: acceptance criteria, testing strategy, specialist context, tasks
 
-### 3. While Working
+### 3. While Working — TDD and Specialist Enforcement
+- **TDD is mandatory**: Write tests FIRST (RED), implement (GREEN), refactor (IMPROVE)
+- Follow the story's `## Testing Strategy` — write each required test type
 - Check off completed tasks (`- [x]`) in the story file as you go
+- **Invoke specialist agents at trigger points**:
+  - OPNet contract code → follow `opnet-contract-dev` rules
+  - OPNet frontend code → follow `opnet-frontend-dev` rules (signer: null, simulate before send)
+  - API endpoints → invoke `security-reviewer` for auth/input validation
+  - Database queries → invoke `database-reviewer` for SQL safety
+  - Go code → invoke `go-reviewer` for idiomatic patterns
+  - Python code → invoke `python-reviewer` for PEP 8 compliance
+  - Architectural decisions → invoke `architect` agent
 - If you discover new work, add it to `Backlog/Product-Backlog.md` under "Icebox"
 - If you need to investigate something, create a `Research/SPIKE-<topic>.md`
 - Write architecture decisions to `Notes/Decisions/`
 - **Commits** reference the story: `feat(scope): description\n\nStory: STORY-<name>`
+- **Test commits** come first: `test(scope): add tests for [component]\n\nStory: STORY-<name>`
 
 ### 4. Completing Work
 1. Move item from "In Progress" to "In Review" on `Sprint/Board.md`
@@ -205,12 +223,30 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
    gh pr create --base develop --title "STORY-<name>: <summary>"
    ```
 4. Update the story's **PR** field with the PR link
-5. Ask the user: "Story is ready for review. Want me to exit the worktree?"
+5. **Automated Review Cycle** (triggered automatically by `/agile-flow:done`, max 3 cycles):
+   a. Detect changed files: `git diff develop...HEAD --name-only`
+   b. Detect project type (OPNet, Go, Python, general)
+   c. Launch relevant review agents **in parallel**:
+      - **Always**: `code-reviewer`, `security-reviewer`
+      - **If Go**: `go-reviewer`
+      - **If Python**: `python-reviewer`
+      - **If OPNet contract**: `opnet-auditor`, `contract-optimizer`
+      - **If OPNet frontend**: `frontend-analyzer`
+      - **If OPNet backend**: `backend-analyzer`
+      - **If OPNet multi-layer**: `cross-layer-validator`, `dependency-auditor`
+   d. Collect findings, assign IDs, track in findings ledger (OPEN/RESOLVED/REGRESSION)
+   e. **If CRITICAL/HIGH findings (FAIL verdict)**:
+      - Fix in worktree, commit: `fix(<scope>): address review findings (cycle N)`
+      - Push, increment cycle
+      - **Re-review incrementally** — only re-run agents that had findings, with diff context
+      - Regressions (fixed then reappeared) → auto-elevated to CRITICAL
+      - Repeat until PASS or max cycles reached
+   f. **If max cycles reached**: report remaining OPEN findings, ask user to fix manually, accept as-is, or leave in review
+   g. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
+6. Ask the user: "Story is done. Exit worktree?"
    - If yes: use `ExitWorktree` with action `keep` (preserves branch until PR merges)
    - If user wants to continue with another story: exit worktree, then `EnterWorktree` for the next story
-6. After review/verification passes, move to "Done"
-7. Update story **Status** to `Done`, add `✅ YYYY-MM-DD`
-8. **Git cleanup** (after PR merged): use `ExitWorktree` with action `remove`, or:
+7. **Git cleanup** (after PR merged): use `ExitWorktree` with action `remove`, or:
    ```
    git branch -d feature/STORY-<name>
    ```
@@ -249,14 +285,24 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
 ### 6. When User Asks to Create New Work
 
 **New idea / feature request:**
-1. Add to `Backlog/Product-Backlog.md` under "Icebox"
-2. Create a story file in `Backlog/Stories/STORY-<name>.md`
+1. **Detect project type**: Check `package.json`, `go.mod`, `asconfig.json`, etc.
+2. **Consult specialist**: Launch a specialist agent for the detected project type to get approach feedback, risks, and testing recommendations
+3. Create a story file in `Backlog/Stories/STORY-<name>.md` with:
+   - User story, acceptance criteria
+   - `## Specialist Context` — project type, consulted specialists, recommendations, pitfalls
+   - `## Testing Strategy` — required test types (unit, integration, contract, E2E) with concrete test requirements per type. TDD is always enforced.
+   - Tasks that follow TDD workflow: write tests → implement → verify coverage
+4. Create linked spec in `Specs/Features/SPEC-<name>.md` with specialist considerations and testing strategy tables
+5. Add to `Backlog/Product-Backlog.md` under "Needs Refinement" (or "Icebox" for vague ideas)
 
 **Refine a backlog item:**
 1. Write/update the story with user story format and acceptance criteria
-2. Create linked specs in `Specs/` if the story needs detailed documentation
-3. Estimate story points
-4. Move from "Needs Refinement" to "Refined" on the Product Backlog board
+2. **Consult specialists** if not already done — fill in Specialist Context section
+3. **Define testing strategy** — ensure all required test types are listed with concrete requirements
+4. Create linked specs in `Specs/` if the story needs detailed documentation
+5. Run quality gate: every acceptance criterion must be automatable, test types must be defined, specialist context must be present
+6. Estimate story points
+7. Move from "Needs Refinement" to "Refined" on the Product Backlog board
 
 **Pull into sprint:**
 1. Move "Refined" items to `Sprint/Board.md` under "Ready"

@@ -16,14 +16,54 @@ so that **[benefit]**.
 - [[Specs/Features/SPEC-feature-name]] — Feature spec
 - [[Specs/Technical/SPEC-tech-name]] — Technical spec (if applicable)
 
+## Specialist Context
+
+**Project type**: [e.g. OPNet contract, OPNet frontend, Go backend, Python API, React frontend]
+**Specialists consulted**: [list of specialist agents consulted during story creation]
+**Key recommendations**:
+- [recommendation from specialist consultation]
+
+**Specialist agents for development**: [agents available during pickup/implementation]
+- [agent 1] — [purpose]
+- [agent 2] — [purpose]
+
+**Known pitfalls**:
+- [pitfall from specialist or incident query]
+
 ## Acceptance Criteria
 - [ ] Given [context], when [action], then [outcome]
 - [ ] Given [context], when [action], then [outcome]
 
+## Testing Strategy
+
+**Test framework**: [detected or recommended: jest/vitest/pytest/go test/as-pect]
+**Coverage target**: 80%+
+**TDD required**: Yes — write tests FIRST, then implement
+
+### Unit Tests
+- [ ] Test [function/component] — [scenario]
+- [ ] Test [function/component] — [edge case]
+
+### Integration Tests
+- [ ] Test [API/module interaction] — [scenario]
+
+### Contract Tests (if OPNet)
+- [ ] Test [contract method] — [valid inputs]
+- [ ] Test [contract method] — [revert on invalid inputs]
+
+### E2E Tests (if user-facing flow)
+- [ ] Test [user flow] — [end-to-end scenario]
+
 ## Tasks
-- [ ] Task 1
-- [ ] Task 2
-- [ ] Task 3
+- [ ] Set up test infrastructure (if needed)
+- [ ] Write unit tests (RED phase)
+- [ ] Implement [component 1]
+- [ ] Write integration tests
+- [ ] Implement [component 2]
+- [ ] Write E2E tests (if applicable)
+- [ ] Verify all tests pass (GREEN phase)
+- [ ] Refactor (IMPROVE phase)
+- [ ] Verify coverage >= 80%
 
 ## Notes
 

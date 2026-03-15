@@ -24,4 +24,12 @@ Complete the current story and create a pull request.
 4. Move item from "In Progress" to "In Review" on `Sprint/Board.md`
 5. Update the story's **Status** to `In Review`
 6. Update the story's **PR** field with the PR URL
-7. Ask: "Story is in review. Exit worktree, or continue with another story?"
+7. **Trigger automated review cycle**: Run `/agile-flow:review` to launch review agents on the changes. This runs a review/fix loop (default max 3 cycles):
+   - Detects project type and changed file categories
+   - Launches appropriate review agents in parallel (code-reviewer, security-reviewer, plus specialized: opnet-auditor, go-reviewer, python-reviewer, etc.)
+   - If CRITICAL/HIGH findings: fixes them, commits, re-reviews (incremental — only re-runs agents that had findings)
+   - If regressions detected (fixed issue reappeared): elevated to CRITICAL
+   - Cycle repeats until PASS or max cycles reached
+   - On PASS: moves story to Done automatically
+   - On max cycles exceeded: reports remaining issues, asks user how to proceed
+8. After review passes (or user accepts advisory-only findings), ask: "Story is done. Exit worktree, or continue with another story?"
