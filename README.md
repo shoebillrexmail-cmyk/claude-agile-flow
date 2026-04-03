@@ -89,9 +89,9 @@ Once installed, just open Claude Code in your repo and talk normally. The workfl
 ```
 You: Set up agile flow for a project called "my-app"
 
-Claude: → Creates vault folder structure (including Learning/)
+Claude: → Creates vault folder structure (Learning/ + shared _Knowledge/ if missing)
         → Creates Sprint Board and Product Backlog
-        → Creates Roadmap and Learning Index
+        → Creates Roadmap, Learning Index, and Knowledge Base Index
         → Updates your CLAUDE.md
 ```
 
@@ -258,7 +258,8 @@ Claude: → Creates Research/SPIKE-payment-provider.md
                    │
                    ▼
           ┌─────────────────┐
-          │  Learn          │  Extract Integration Guides, Patterns, Writeups
+          │  Learn          │  Classify → _Knowledge/ (cross-cutting)
+          │                 │          or Learning/ (project-specific)
           └────────┬────────┘
                    │
                    ▼
@@ -371,7 +372,7 @@ After installation, Claude Code loads the workflow rules from `~/.claude/rules/c
 7. **TDD enforcement** — tests first, then implementation, then refactor, 80%+ coverage
 8. **Review cycles** — parallel review agents with structured repair and regression detection
 9. **Hard gates** — quality checks that block completion until resolved
-10. **Learning extraction** — generates educational content from completed stories
+10. **Learning extraction** — classifies findings as cross-cutting (`_Knowledge/`) or project-specific (`Learning/`)
 11. **Documentation updates** — ensures repo docs stay current and creates backlog tasks for user-facing docs
 
 You don't need slash commands. Claude understands what you want from natural language and follows the workflow rules.
@@ -416,7 +417,7 @@ C:\Obsidian_Vaults\
 │   ├── Guides/GUIDE-*.md            # Technology integration guides
 │   └── Writeups/WRITEUP-*.md        # Deep-dive educational content
 │
-my-project/
+├── my-project/
 ├── Roadmap.md                       # Phase-level milestones
 ├── Sprint/
 │   └── Board.md                     # Kanban: Ready → In Progress → In Review → Done
