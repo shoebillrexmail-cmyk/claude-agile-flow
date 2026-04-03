@@ -11,7 +11,7 @@ Agile project management for Claude Code using Obsidian vaults as your board. Ka
 - **TDD enforcement** — tests-first workflow with coverage targets
 - **Automated review cycles** — parallel review agents with fix/re-review loop (max 3 cycles)
 - **Hard quality gates** — tests must pass, no CRITICAL findings, coverage checks
-- **Learning system** — builds educational knowledge base from completed stories
+- **Learning system** — builds educational knowledge base from completed stories, with a shared `_Knowledge/` vault for cross-project findings
 - **No special commands needed** — just talk to Claude naturally
 
 ## Install
@@ -133,7 +133,8 @@ Claude: → Reads Sprint Board and Backlog
 You: Work on STORY-user-login
 
 Claude: → Reads the story file, linked specs, and specialist context
-        → Checks Learning/ for relevant prior patterns, guides, writeups
+        → Checks _Knowledge/ for cross-project gotchas and patterns
+        → Checks Learning/ for project-specific prior learnings
         → Verifies test infrastructure is ready
         → Creates an isolated worktree (EnterWorktree)
         → Creates branch: feature/STORY-user-login
@@ -179,7 +180,9 @@ Claude: → Checks acceptance criteria against the code
           - Re-reviews incrementally (only re-runs agents that had findings)
           - Up to 3 cycles, then escalates to user
         → Hard gates: tests must pass, no CRITICAL security findings
-        → Learning extraction: generates Integration Guides, Patterns, Writeups
+        → Learning extraction: classifies findings as cross-cutting or project-specific
+          - Cross-cutting (Gotchas, Patterns, Guides) → _Knowledge/ (shared across all projects)
+          - Project-specific (architecture, conventions) → Learning/
         → Moves story to "Done"
 ```
 
@@ -293,38 +296,65 @@ When a story moves to "In Review", the automated review system:
 
 ## Learning System
 
-After every completed story, the system extracts learnings into your Obsidian vault:
+After every completed story, the system extracts learnings and routes them to the right place:
 
-### Three types of learning documents
+### Two-tier knowledge architecture
 
-| Type | When Created | Example |
-|------|-------------|---------|
-| **Integration Guide** | New technology, service, or library used for the first time | `GUIDE-wallet-connect.md` — step-by-step how-to with annotated code |
-| **Pattern** | Review found a bug, or specialist flagged a gotcha | `PATTERN-no-buffer-in-contracts.md` — wrong way vs right way |
-| **Writeup** | Complex problem solved with a non-obvious approach | `WRITEUP-multi-pool-staking.md` — educational deep-dive |
+```
+C:\Obsidian_Vaults\
+├── _Knowledge/                    ← Shared across ALL projects
+│   ├── Index.md                   ← Domain-indexed, severity-badged catalog
+│   ├── Gotchas/GOTCHA-*.md        ← "Don't do X because Y"
+│   ├── Patterns/PATTERN-*.md      ← Reusable anti-patterns / best practices
+│   ├── Guides/GUIDE-*.md          ← Technology integration guides
+│   └── Writeups/WRITEUP-*.md      ← Deep-dive educational content
+│
+├── my-project/
+│   └── Learning/                  ← Project-specific only
+│       ├── Patterns/              ← This project's conventions
+│       ├── Integrations/          ← This project's integration setup
+│       └── Writeups/              ← This project's architecture decisions
+```
+
+**Cross-cutting** (`_Knowledge/`): Findings that any project using this technology would benefit from. "Never pass signer on OPNet frontend", "Always simulate before sendTransaction."
+
+**Project-specific** (`Learning/`): Architecture decisions and conventions unique to one codebase. "Our auth middleware uses X pattern."
+
+### Four types of learning documents
+
+| Type | Prefix | When Created | Destination |
+|------|--------|-------------|-------------|
+| **Gotcha** | `GOTCHA-` | Concrete mistake with a specific fix | Almost always `_Knowledge/` |
+| **Pattern** | `PATTERN-` | Review found a bug, or specialist flagged an anti-pattern | `_Knowledge/` or `Learning/` |
+| **Integration Guide** | `GUIDE-` | New technology, service, or library used for the first time | `_Knowledge/` or `Learning/` |
+| **Writeup** | `WRITEUP-` | Complex problem solved with a non-obvious approach | `_Knowledge/` or `Learning/` |
 
 ### How it works
 
 - **Auto-generated** after each story completes (skipped for trivial changes)
-- **Deduplicated** — updates existing guides/patterns instead of creating duplicates
+- **Auto-classified** — each finding is routed to `_Knowledge/` (cross-cutting) or `Learning/` (project-specific)
+- **Deduplicated** — checks both locations before creating; updates existing entries instead of duplicating
+- **Structured frontmatter** — every entry has type, domain tags, severity, staleness tracking, and source project
 - **Occurrence tracking** — patterns seen 3+ times get flagged for linter rules
+- **Staleness tracking** — entries with `last_verified` > 90 days are flagged during story pickup
 - **Bidirectional links** — stories link to learnings, learnings link to stories
-- **Consulted at pickup** — when starting a new story, prior learnings are loaded into the development brief
-- **Cataloged** in `Learning/Index.md` with searchable tables
+- **Consulted at pickup** — when starting a new story, BOTH `_Knowledge/` and project `Learning/` are loaded into the development brief
+- **Promotion** — if a project-specific learning is encountered in a second project, it gets promoted to `_Knowledge/`
 
 ### Growing knowledge base
 
 ```
-Story 1: Implement wallet connect → GUIDE-wallet-connect.md
-Story 2: Fix signer bug          → PATTERN-null-signer-frontend.md
-Story 3: Build staking contract   → WRITEUP-staking-architecture.md
-                                    PATTERN-storage-pointer-order.md
+Project A, Story 1: Implement wallet connect → _Knowledge/Guides/GUIDE-wallet-connect.md (cross-cutting)
+Project A, Story 2: Fix signer bug          → _Knowledge/Gotchas/GOTCHA-null-signer-frontend.md (cross-cutting)
+Project A, Story 3: Build staking contract   → Learning/Writeups/WRITEUP-staking-architecture.md (project-specific)
+                                               _Knowledge/Patterns/PATTERN-storage-pointer-order.md (cross-cutting)
 
-Story 4: New token contract       → Loads PATTERN-storage-pointer-order.md at pickup
-                                    Developer starts with lessons from Story 3
+Project B, Story 1: New token contract       → Loads GOTCHA-null-signer-frontend.md at pickup (from _Knowledge/)
+                                               Loads PATTERN-storage-pointer-order.md at pickup (from _Knowledge/)
+                                               Developer starts with ALL lessons from Project A
 ```
 
-The vault becomes an educational resource the user can browse in Obsidian to understand the project's history, patterns, and integrations.
+The `_Knowledge/` vault becomes a shared institutional memory. Project `Learning/` folders stay focused on project-specific context.
 
 ---
 
@@ -375,9 +405,17 @@ The installer also guides you to add these to `~/.claude/settings.json`:
 
 ## Vault Structure
 
-Each project gets this structure in your Obsidian vault:
+The Obsidian vault has a shared `_Knowledge/` directory plus per-project folders:
 
 ```
+C:\Obsidian_Vaults\
+├── _Knowledge/                      # Shared cross-project knowledge base
+│   ├── Index.md                     # Domain-indexed catalog
+│   ├── Gotchas/GOTCHA-*.md          # Concrete mistakes with fixes
+│   ├── Patterns/PATTERN-*.md        # Reusable anti-patterns / best practices
+│   ├── Guides/GUIDE-*.md            # Technology integration guides
+│   └── Writeups/WRITEUP-*.md        # Deep-dive educational content
+│
 my-project/
 ├── Roadmap.md                       # Phase-level milestones
 ├── Sprint/
@@ -574,6 +612,8 @@ claude-agile-flow/
 │   ├── Feature-Spec-template.md # Includes specialist considerations + testing tables
 │   ├── Technical-Spec-template.md
 │   ├── Spike-template.md
+│   ├── Knowledge-Index-template.md  # _Knowledge/ catalog template
+│   ├── Gotcha-template.md          # Cross-project gotcha entry
 │   ├── Learning-Index-template.md
 │   ├── Integration-Guide-template.md
 │   ├── Pattern-template.md

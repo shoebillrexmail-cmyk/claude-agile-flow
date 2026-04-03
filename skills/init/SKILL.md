@@ -62,6 +62,20 @@ If no argument, ask for the project name.
    - Research: C:\Obsidian_Vaults\<ProjectName>\Research\
    ```
 
-6. **Update Dashboard** at `C:\Obsidian_Vaults\_Dashboard.md` with the new project
+6. **Ensure shared `_Knowledge/` structure exists** at `C:\Obsidian_Vaults\_Knowledge\`:
+   - If the `_Knowledge/` directory doesn't exist, create it with:
+     ```
+     _Knowledge/
+     ├── Index.md
+     ├── Gotchas/
+     ├── Patterns/
+     ├── Guides/
+     └── Writeups/
+     ```
+   - Use the `Knowledge-Index-template.md` for `Index.md`
+   - If `_Knowledge/` already exists, skip (never overwrite existing content)
+   - This is vault-level (not project-level) — shared across all projects
 
-7. Report: "Agile flow initialized for <ProjectName>. Open your vault in Obsidian to see the boards."
+7. **Update Dashboard** at `C:\Obsidian_Vaults\_Dashboard.md` with the new project
+
+8. Report: "Agile flow initialized for <ProjectName>. Open your vault in Obsidian to see the boards."

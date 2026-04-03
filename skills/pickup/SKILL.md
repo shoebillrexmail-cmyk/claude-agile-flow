@@ -58,9 +58,23 @@ These agents are always available regardless of domain:
 
 ## Step 4: Consult Prior Learnings
 
-Check the vault's `Learning/` folder for relevant knowledge from past stories:
+Check TWO sources for relevant knowledge: the shared `_Knowledge/` base and the project's `Learning/` folder.
 
-1. Read `Learning/Index.md` to scan the catalog
+### 4a: Shared Knowledge Base (`_Knowledge/`)
+
+1. Read `C:\Obsidian_Vaults\_Knowledge\Index.md` to scan the cross-project catalog
+2. Identify the story's domains (from specialist context or project type detection)
+3. Read entries under matching domain sections, prioritizing by severity:
+   - **Critical/High** entries matching this story's domain — ALWAYS include in brief
+   - **Medium** entries — include if directly relevant to the technologies being used
+4. For each relevant entry, read the file to get the full context (problem, fix, detection method)
+5. **Staleness check**: If an entry's `last_verified` frontmatter date is > 90 days old, flag it:
+   - "This entry hasn't been verified recently — confirm before relying on it"
+   - After the story completes, the learn skill will update `last_verified` if the entry is still valid
+
+### 4b: Project-Specific Learnings (`Learning/`)
+
+1. Read `Learning/Index.md` to scan the project catalog
 2. **Search Patterns**: Check `Learning/Patterns/` for anti-patterns matching this story's domain
    - Match by domain tag in pattern files
    - Look for patterns related to the technologies this story will use
@@ -69,15 +83,22 @@ Check the vault's `Learning/` folder for relevant knowledge from past stories:
 4. **Search Writeups**: Check `Learning/Writeups/` for relevant prior deep-dives
    - Look for writeups in the same domain as this story
 
-Include relevant learnings in the development brief (Step 7):
+### Include in development brief (Step 7):
+
 ```
-### Prior Learnings (from past stories)
-- PATTERN-<name>: [summary] — avoid this
+### Prior Learnings
+
+#### Cross-project (_Knowledge/)
+- GOTCHA-<name>: [summary] — AVOID THIS (critical)
+- PATTERN-<name>: [summary] — recommended approach
 - GUIDE-<name>: [summary] — reference for [technology]
+
+#### Project-specific (Learning/)
+- PATTERN-<name>: [summary] — project convention
 - WRITEUP-<name>: [summary] — relevant context
 ```
 
-If no relevant learnings found, note: "No prior learnings for this domain yet."
+If no relevant learnings found in either location, note: "No prior learnings for this domain yet."
 
 ## Step 5: Verify Testing Infrastructure
 

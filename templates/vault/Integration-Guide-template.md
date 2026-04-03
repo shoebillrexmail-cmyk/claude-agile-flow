@@ -1,3 +1,15 @@
+---
+type: guide
+domain: []
+severity: medium
+source_project: {{project_name}}
+source_story: STORY-{{name}}
+date_created: {{date}}
+last_verified: {{date}}
+status: active
+superseded_by:
+---
+
 # Integration Guide: {{Technology/Service Name}}
 
 **First used in**: [[STORY-name]]

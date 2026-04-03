@@ -54,10 +54,15 @@ Complete the current story and create a pull request.
    - On max cycles exceeded: reports remaining issues, asks user how to proceed
 9. **Learning extraction**: Run `/agile-flow:learn` to extract learnings from the completed story:
    - Analyzes what changed, what was caught in review, what specialist feedback was key
-   - Generates learning documents in the vault's `Learning/` folder:
+   - Classifies each learning as **cross-cutting** or **project-specific**:
+     - **Cross-cutting** (applies to any project using this tech) → saved to `C:\Obsidian_Vaults\_Knowledge\` (Gotchas/, Patterns/, Guides/, Writeups/)
+     - **Project-specific** (only relevant to this codebase) → saved to the project's `Learning/` folder
+   - Generates learning documents:
+     - **Gotchas** — concrete "don't do X because Y" entries (usually cross-cutting)
+     - **Patterns** — anti-patterns and best practices discovered during review
      - **Integration Guides** — when new technologies/services were integrated
-     - **Patterns** — anti-patterns and gotchas discovered during review
      - **Writeups** — educational deep-dives on complex problems solved
-   - Updates `Learning/Index.md` and links learnings back to the story
+   - Updates `_Knowledge/Index.md` and/or `Learning/Index.md` as appropriate
+   - Links learnings back to the story
    - Skipped for trivial/routine changes with no novel learnings
 10. After learning extraction, ask: "Story is done. Exit worktree, or continue with another story?"
