@@ -3,8 +3,69 @@
 ## Vault Location
 - Path: `C:\Obsidian_Vaults`
 - Each project has its own folder: `C:\Obsidian_Vaults\<ProjectName>\`
+- Shared knowledge base: `C:\Obsidian_Vaults\_Knowledge\` (cross-project, all sessions can read/write)
 - The vault directory is in `additionalDirectories` — use Read/Edit/Write tools directly
 - The current project's vault folder is specified in the repo's CLAUDE.md under `## Obsidian Project`
+
+## Shared Knowledge Base (`_Knowledge/`)
+
+Cross-project knowledge shared across ALL vault projects. Entries here are findings, gotchas, patterns, and guides that apply beyond a single project.
+
+```
+_Knowledge/
+├── Index.md                      # Domain-indexed catalog (severity-badged)
+├── Gotchas/
+│   └── GOTCHA-<name>.md          # "Don't do X because Y" — concrete mistakes with fixes
+├── Patterns/
+│   └── PATTERN-<name>.md         # Reusable anti-patterns and best practices
+├── Guides/
+│   └── GUIDE-<name>.md           # Technology integration guides
+└── Writeups/
+    └── WRITEUP-<name>.md         # Deep-dive educational content
+```
+
+### Entry Types
+
+| Type | Prefix | Purpose | Example |
+|------|--------|---------|---------|
+| Gotcha | `GOTCHA-` | Concrete mistake with a specific fix | `GOTCHA-opnet-signer-null.md` |
+| Pattern | `PATTERN-` | Proven approach or anti-pattern | `PATTERN-simulate-before-send.md` |
+| Guide | `GUIDE-` | Step-by-step integration howto | `GUIDE-opnet-wallet-connect.md` |
+| Writeup | `WRITEUP-` | Deep dive on a complex problem | `WRITEUP-storage-pointer-ordering.md` |
+
+### Mandatory Frontmatter
+
+Every `_Knowledge/` entry MUST have this frontmatter:
+
+```yaml
+---
+type: gotcha | pattern | guide | writeup
+domain: [opnet, react, typescript, testing, ...]
+severity: critical | high | medium | low
+source_project: <project-name>
+source_story: STORY-<name>
+date_created: YYYY-MM-DD
+last_verified: YYYY-MM-DD
+status: active | deprecated | superseded
+superseded_by: (link if replaced)
+---
+```
+
+### When to use `_Knowledge/` vs project `Learning/`
+
+| Cross-cutting (`_Knowledge/`) | Project-specific (`Learning/`) |
+|------------------------------|-------------------------------|
+| Any project using this tech would benefit | Only relevant to this project |
+| Tied to a technology, language, or framework | Tied to this project's design decisions |
+| "Never pass signer on OPNet frontend" | "Our auth middleware uses X pattern" |
+
+**Rule of thumb**: If you can explain it in terms of the technology alone, it's cross-cutting. If you have to name the project, it's project-specific.
+
+### Staleness Tracking
+
+- Entries with `last_verified` > 90 days are flagged during story pickup
+- The `/agile-flow:learn` skill updates `last_verified` when a pattern is re-confirmed
+- Deprecated entries have `status: deprecated` and are excluded from pickup results
 
 ## Project Structure
 ```
@@ -196,10 +257,9 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
    - Load domain rules and development agent triggers from the domain's specialist config
    - Note known pitfalls to avoid during implementation
    - If specialist context is missing (legacy story), auto-detect project type and discover domain plugins
-5. **Consult prior learnings**: Read `Learning/Index.md` and search for relevant entries:
-   - Check `Learning/Patterns/` for anti-patterns related to this story's domain
-   - Check `Learning/Integrations/` for guides on technologies this story will use
-   - Check `Learning/Writeups/` for relevant prior deep-dives
+5. **Consult prior learnings** from TWO sources:
+   - **Shared knowledge base** (`_Knowledge/Index.md`): Read entries matching this story's domain. Critical/High entries are always included in the brief. Flag entries with `last_verified` > 90 days as potentially stale.
+   - **Project learnings** (`Learning/Index.md`): Check `Learning/Patterns/`, `Learning/Integrations/`, `Learning/Writeups/` for project-specific context.
    - Include relevant learnings in the development brief — these are lessons from past experience
 6. **Verify testing infrastructure**: Check test framework, coverage tools, test scripts exist
 6. Respect WIP limit: max 2-3 items in "In Progress" at once
@@ -266,8 +326,11 @@ Without worktrees, parallel sessions conflict, develop gets polluted with half-f
    h. **If PASS**: MEDIUM/LOW reported as advisory, move to "Done", update status with `✅ YYYY-MM-DD`
 7. **Learning extraction** — run `/agile-flow:learn` to generate educational content:
    - Analyze what was built, what was caught in review, what specialist feedback was key
-   - Generate **Integration Guides** (new tech), **Patterns** (anti-patterns/gotchas), **Writeups** (complex solutions)
-   - Save to `Learning/` in the vault, update `Learning/Index.md`
+   - Classify each learning as **cross-cutting** or **project-specific**:
+     - Cross-cutting → save to `_Knowledge/` (Gotchas/, Patterns/, Guides/, Writeups/), update `_Knowledge/Index.md`
+     - Project-specific → save to `Learning/`, update `Learning/Index.md`
+   - Generate **Gotchas** (mistake prevention), **Patterns** (anti-patterns/best practices), **Integration Guides** (new tech), **Writeups** (complex solutions)
+   - Deduplicate against both `_Knowledge/` and `Learning/` before creating new entries
    - Link learnings back to the story file
    - Skip for routine changes with no novel learnings
 8. Ask the user: "Story is done. Exit worktree?"
@@ -459,8 +522,9 @@ See [git-workflow.md](./git-workflow.md) for full branching strategy and worktre
 2. Create subfolders: `Sprint/`, `Backlog/Epics/`, `Backlog/Stories/`, `Specs/Features/`, `Specs/Technical/`, `Specs/API/`, `Learning/Integrations/`, `Learning/Patterns/`, `Learning/Writeups/`, `Research/`, `Notes/Decisions/`, `Notes/Daily/`, `Notes/Retros/`, `Archive/`
 3. Copy templates for `Sprint/Board.md` and `Backlog/Product-Backlog.md`
 4. Create `Roadmap.md`
-5. Add `## Obsidian Project` section to the code repo's CLAUDE.md
-6. Update `C:\Obsidian_Vaults\_Dashboard.md`
+5. Ensure shared `_Knowledge/` structure exists at `C:\Obsidian_Vaults\_Knowledge\` (create if missing — vault-level, not project-level)
+6. Add `## Obsidian Project` section to the code repo's CLAUDE.md
+7. Update `C:\Obsidian_Vaults\_Dashboard.md`
 
 ## Multi-Project Rules
 - NEVER modify another project's vault files unless explicitly asked

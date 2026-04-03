@@ -1,3 +1,15 @@
+---
+type: pattern
+domain: []
+severity: critical | high | medium | low
+source_project: {{project_name}}
+source_story: STORY-{{name}}
+date_created: {{date}}
+last_verified: {{date}}
+status: active
+superseded_by:
+---
+
 # Pattern: {{Short Descriptive Name}}
 
 **Type**: Anti-pattern | Best Practice | Gotcha

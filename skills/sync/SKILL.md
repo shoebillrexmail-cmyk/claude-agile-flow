@@ -91,6 +91,22 @@ Catalog of learnings from this project. Updated automatically by `/agile-flow:do
 - [ ] TBD
 ```
 
+**Also check the shared `_Knowledge/` structure** at `C:\Obsidian_Vaults\_Knowledge\`:
+
+```
+_Knowledge/
+├── Index.md
+├── Gotchas/
+├── Patterns/
+├── Guides/
+└── Writeups/
+```
+
+- If `_Knowledge/` directory is missing → create it with subdirectories and `Index.md`
+- If subdirectories are missing → create them
+- If `Index.md` is missing → create from `Knowledge-Index-template.md`
+- If everything exists → skip (never overwrite existing content)
+
 **Also check the repo side:**
 - `CHANGELOG.md` — if missing, create with:
   ```
